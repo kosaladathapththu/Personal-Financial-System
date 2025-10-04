@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PFMS • Transactions</title>
+  <style>
+    :root { --bg:#fafafa; --fg:#222; --muted:#6b7280; --card:#fff; --line:#e5e7eb; --accent:#0ea5e9; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:var(--fg); background:var(--bg); }
+    header { border-bottom:1px solid var(--line); background:#fff; position:sticky; top:0; }
+    .wrap { max-width:1100px; margin:0 auto; padding:16px; }
+    .muted { color:var(--muted); }
+    .btn { display:inline-block; padding:8px 12px; border-radius:10px; border:1px solid var(--line); text-decoration:none; font-weight:600; background:#fff; }
+    .btn.primary { background:var(--accent); color:#fff; border-color:transparent; }
+    table { width:100%; border-collapse:collapse; background:#fff; }
+    th, td { padding:10px; border-bottom:1px solid var(--line); text-align:left; }
+    th { background:#f9fafb; font-weight:600; }
+    .row { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; }
+    input, select { padding:8px 10px; border:1px solid var(--line); border-radius:8px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
+    .pill { display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--line); font-size:.8rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+      <div>
+        <a class="btn" href="index.html">← Home</a>
+      </div>
+      <strong>Transactions</strong>
+      <div>
+        <a class="btn" href="login.html">Login</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Filters -->
+    <section class="card" aria-labelledby="filters-title">
+      <h2 id="filters-title" style="margin:0 0 10px; font-size:1.1rem;">Filters</h2>
+      <div class="row">
+        <label> From<br><input id="q_from" type="date"></label>
+        <label> To<br><input id="q_to" type="date"></label>
+        <label> Type<br>
+          <select id="q_type">
+            <option value="">All</option>
+            <option>INCOME</option>
+            <option>EXPENSE</option>
+            <option>TRANSFER</option>
+          </select>
+        </label>
+        <label> Account<br>
+          <select id="q_account"><option value="">All</option></select>
+        </label>
+        <label> Category<br>
+          <select id="q_category"><option value="">All</option></select>
+        </label>
+        <button class="btn" id="btn-apply">Apply</button>
+        <button class="btn" id="btn-clear">Clear</button>
+      </div>
+    </section>
+
+    <!-- Create / Update form -->
+    <section class="card" aria-labelledby="form-title" style="margin-top:16px;">
+      <h2 id="form-title" style="margin:0 0 10px; font-size:1.1rem;">Add / Edit Transaction</h2>
+      <div class="row">
+        <label> Type<br>
+          <select id="f_type">
+            <option>INCOME</option>
+            <option selected>EXPENSE</option>
+            <option>TRANSFER</option>
+          </select>
+        </label>
+        <label> Account<br>
+          <select id="f_account"></select>
+        </label>
+        <label> Category<br>
+          <select id="f_category"></select>
+        </label>
+        <label> Amount<br><input id="f_amount" type="number" step="0.01" placeholder="0.00"></label>
+        <label> Date/Time<br><input id="f_txn_at" type="datetime-local"></label>
+        <label> Note<br><input id="f_note" placeholder="optional"></label>
+        <label> Sync Status<br>
+          <select id="f_sync">
+            <option>PENDING</option>
+            <option>SYNCED</option>
+            <option>CONFLICT</option>
+          </select>
+        </label>
+        <input id="f_id" type="hidden" />
+        <button class="btn primary" id="btn-save">Save</button>
+        <button class="btn" id="btn-reset" type="button">Reset</button>
+      </div>
+      <div class="muted" id="msg" style="margin-top:8px;"></div>
+    </section>
+
+    <!-- List -->
+    <section style="margin-top:16px;">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h2 style="margin:0; font-size:1.1rem;">Recent</h2>
+          <div>
+            <span class="pill" id="sum-income">Income: LKR 0.00</span>
+            <span class="pill" id="sum-expense" style="margin-left:6px;">Expense: LKR 0.00</span>
+            <span class="pill" id="sum-net" style="margin-left:6px;">Net: LKR 0.00</span>
+            <button class="btn" id="btn-refresh" style="margin-left:8px;">Refresh</button>
+          </div>
+        </div>
+        <div class="muted" id="empty" style="display:none;">No transactions yet.</div>
+        <table id="tbl" aria-label="Transactions table">
+          <thead>
+            <tr>
+              <th style="width:60px;">ID</th>
+              <th>Date/Time</th>
+              <th>Type</th>
+              <th>Account</th>
+              <th>Category</th>
+              <th style="text-align:right;">Amount</th>
+              <th>Sync</th>
+              <th style="width:200px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id)=>document.getElementById(id);
+    function fmtLKR(n){ try{ return new Intl.NumberFormat(undefined,{style:'currency', currency:'LKR'}).format(+n||0);}catch(e){return 'LKR '+((+n||0).toFixed(2));} }
+    function uuid(){ if (crypto?.randomUUID) return crypto.randomUUID(); const s=[]; for(let i=0;i<36;i++){s[i]='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'[i];} return s.join(''); }
+
+    async function loadAccounts(){
+      const res = await fetch('api/accounts.php',{credentials:'include'});
+      const rows = res.ok ? await res.json() : [];
+      [$('q_account'), $('f_account')].forEach(sel=>{ sel.innerHTML=''; const opt0=document.createElement('option'); opt0.value=''; opt0.textContent='All'; if(sel.id==='f_account') opt0.textContent='Select'; sel.appendChild(opt0); });
+      rows.forEach(r=>{
+        const o1=document.createElement('option'); o1.value=r.id; o1.textContent=r.name; $('q_account').appendChild(o1);
+        const o2=document.createElement('option'); o2.value=r.id; o2.textContent=r.name; $('f_account').appendChild(o2);
+      });
+    }
+    async function loadCategories(){
+      const res = await fetch('api/categories.php',{credentials:'include'});
+      const rows = res.ok ? await res.json() : [];
+      [$('q_category'), $('f_category')].forEach(sel=>{ sel.innerHTML=''; const opt0=document.createElement('option'); opt0.value=''; opt0.textContent='All'; if(sel.id==='f_category') opt0.textContent='Select'; sel.appendChild(opt0); });
+      rows.forEach(r=>{
+        const label = `${r.name} (${r.kind})`;
+        const o1=document.createElement('option'); o1.value=r.id; o1.textContent=label; $('q_category').appendChild(o1);
+        const o2=document.createElement('option'); o2.value=r.id; o2.textContent=label; $('f_category').appendChild(o2);
+      });
+    }
+
+    function clearForm(){
+      $('f_id').value=''; $('f_type').value='EXPENSE'; $('f_account').value=''; $('f_category').value='';
+      $('f_amount').value=''; $('f_txn_at').value=''; $('f_note').value=''; $('f_sync').value='PENDING';
+      $('msg').textContent='';
+    }
+
+    function readFilters(){
+      const p = new URLSearchParams();
+      if($('q_type').value) p.set('type', $('q_type').value);
+      if($('q_account').value) p.set('account_id', $('q_account').value);
+      if($('q_category').value) p.set('category_id', $('q_category').value);
+      if($('q_from').value) p.set('from', $('q_from').value);
+      if($('q_to').value) p.set('to', $('q_to').value);
+      p.set('limit','100');
+      return p;
+    }
+
+    async function loadList(){
+      const qs = readFilters();
+      const res = await fetch('api/transactions.php?'+qs.toString(), {credentials:'include'});
+      const tbody = document.querySelector('#tbl tbody');
+      tbody.innerHTML='';
+      if(!res.ok){ $('empty').style.display='block'; $('empty').textContent='Please login first.'; return; }
+      let rows = await res.json();
+      // Client-side filter for from/to/type/account/category if backend doesn't yet support it
+      const f = Object.fromEntries(qs);
+      rows = rows.filter(r=>{
+        if(f.type && r.type!==f.type) return false;
+        if(f.account_id && String(r.account_id)!==String(f.account_id)) return false;
+        if(f.category_id && String(r.category_id)!==String(f.category_id)) return false;
+        if(f.from && new Date(r.txn_at) < new Date(f.from)) return false;
+        if(f.to){ const end = new Date(f.to); end.setDate(end.getDate()+1); if(new Date(r.txn_at) >= end) return false; }
+        return true;
+      });
+      if(!rows.length){ $('empty').style.display='block'; return; }
+      $('empty').style.display='none';
+      // totals
+      let inc=0, exp=0; rows.forEach(r=>{ if(r.type==='INCOME') inc+=+r.amount; else if(r.type==='EXPENSE') exp+=+r.amount; });
+      $('sum-income').textContent = 'Income: ' + fmtLKR(inc);
+      $('sum-expense').textContent = 'Expense: ' + fmtLKR(exp);
+      $('sum-net').textContent = 'Net: ' + fmtLKR(inc-exp);
+
+      rows.forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${r.id}</td>
+          <td>${new Date(r.txn_at).toLocaleString()}</td>
+          <td>${r.type}</td>
+          <td>${r.account_name||('#'+r.account_id)}</td>
+          <td>${r.category_name||('#'+r.category_id)}</td>
+          <td style="text-align:right;">${(+r.amount).toFixed(2)}</td>
+          <td>${r.sync_status}</td>
+          <td>
+            <button class="btn" data-act="edit" data-id="${r.id}">Edit</button>
+            <button class="btn" data-act="del" data-id="${r.id}">Delete</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function fillForm(row){
+      $('f_id').value=row.id; $('f_type').value=row.type; $('f_account').value=row.account_id;
+      $('f_category').value=row.category_id; $('f_amount').value=row.amount; $('f_note').value=row.note||'';
+      const dt = new Date(row.txn_at); const iso = dt.toISOString().slice(0,16); $('f_txn_at').value=iso;
+      $('f_sync').value=row.sync_status||'PENDING';
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    async function save(){
+      const b = {
+        id: $('f_id').value ? +$('f_id').value : undefined,
+        type: $('f_type').value,
+        account_id: +$('f_account').value,
+        category_id: +$('f_category').value,
+        amount: +$('f_amount').value,
+        txn_at: $('f_txn_at').value,
+        note: $('f_note').value,
+        sync_status: $('f_sync').value,
+        client_uuid: $('f_id').value ? undefined : (uuid())
+      };
+      if(!b.account_id || !b.category_id || !b.amount || !b.txn_at){ $('msg').textContent='Fill all required fields.'; return; }
+      const method = b.id ? 'PUT' : 'POST';
+      const res = await fetch('api/transactions.php',{method, headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify(b)});
+      if(!res.ok){ $('msg').textContent='Save failed ('+res.status+').'; return; }
+      $('msg').textContent='Saved.'; clearForm(); loadList();
+    }
+
+    async function del(id){
+      if(!confirm('Delete transaction '+id+'?')) return;
+      const res = await fetch('api/transactions.php?id='+id,{method:'DELETE', credentials:'include'});
+      if(!res.ok){ alert('Delete failed'); return; }
+      loadList();
+    }
+
+    document.addEventListener('click', e=>{
+      const t = e.target;
+      if(t.matches('#btn-apply')) loadList();
+      if(t.matches('#btn-clear')){ $('q_from').value=''; $('q_to').value=''; $('q_type').value=''; $('q_account').value=''; $('q_category').value=''; loadList(); }
+      if(t.matches('#btn-refresh')) loadList();
+      if(t.matches('#btn-save')) save();
+      if(t.matches('#btn-reset')) clearForm();
+      if(t.dataset.act==='edit'){
+        const tr = t.closest('tr');
+        const row = {
+          id:+t.dataset.id,
+          txn_at: tr.children[1].textContent,
+          type: tr.children[2].textContent,
+          account_id: parseInt(tr.children[3].dataset.id || '0') || undefined,
+          category_id: parseInt(tr.children[4].dataset.id || '0') || undefined,
+          amount: parseFloat(tr.children[5].textContent),
+          sync_status: tr.children[6].textContent,
+          note: ''
+        };
+        fillForm(row);
+      }
+      if(t.dataset.act==='del') del(+t.dataset.id);
+    });
+
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      await loadAccounts();
+      await loadCategories();
+      loadList();
+    });
+  </script>
+</body>
+</html>

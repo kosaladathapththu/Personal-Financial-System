@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PFMS • Categories</title>
+  <style>
+    :root { --bg:#fafafa; --fg:#222; --muted:#6b7280; --card:#fff; --line:#e5e7eb; --accent:#0ea5e9; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color:var(--fg); background:var(--bg); }
+    header { border-bottom:1px solid var(--line); background:#fff; position:sticky; top:0; }
+    .wrap { max-width:1100px; margin:0 auto; padding:16px; }
+    .muted { color:var(--muted); }
+    .btn { display:inline-block; padding:8px 12px; border-radius:10px; border:1px solid var(--line); text-decoration:none; font-weight:600; background:#fff; }
+    .btn.primary { background:var(--accent); color:#fff; border-color:transparent; }
+    table { width:100%; border-collapse:collapse; background:#fff; }
+    th, td { padding:10px; border-bottom:1px solid var(--line); text-align:left; }
+    th { background:#f9fafb; font-weight:600; }
+    .row { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; }
+    input, select { padding:8px 10px; border:1px solid var(--line); border-radius:8px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+      <div>
+        <a class="btn" href="index.html">← Home</a>
+      </div>
+      <strong>Categories</strong>
+      <div>
+        <a class="btn" href="login.html">Login</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Create / Update form -->
+    <section class="card" aria-labelledby="form-title">
+      <h2 id="form-title" style="margin:0 0 10px; font-size:1.1rem;">Add / Edit Category</h2>
+      <div class="row">
+        <label> Name<br><input id="f_name" placeholder="e.g., Food & Dining" /></label>
+        <label> Kind<br>
+          <select id="f_kind">
+            <option value="INCOME">INCOME</option>
+            <option value="EXPENSE" selected>EXPENSE</option>
+          </select>
+        </label>
+        <label> Parent (optional)<br>
+          <select id="f_parent">
+            <option value="">— none —</option>
+          </select>
+        </label>
+        <input id="f_id" type="hidden" />
+        <button class="btn primary" id="btn-save">Save</button>
+        <button class="btn" id="btn-clear" type="button">Clear</button>
+      </div>
+      <div class="muted" id="msg" style="margin-top:8px;"></div>
+    </section>
+
+    <!-- List -->
+    <section style="margin-top:16px;">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h2 style="margin:0; font-size:1.1rem;">Your Categories</h2>
+          <button class="btn" id="btn-refresh">Refresh</button>
+        </div>
+        <div class="muted" id="empty" style="display:none;">No categories yet.</div>
+        <table id="tbl" aria-label="Categories table">
+          <thead>
+            <tr>
+              <th style="width:60px;">ID</th>
+              <th>Name</th>
+              <th>Kind</th>
+              <th>Parent</th>
+              <th style="width:180px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const el = (id)=>document.getElementById(id);
+
+    function clearForm(){
+      el('f_id').value=''; el('f_name').value=''; el('f_kind').value='EXPENSE'; el('f_parent').value='';
+      el('msg').textContent='';
+    }
+
+    async function loadOptions(){
+      // Load existing categories for parent dropdown
+      const res = await fetch('api/categories.php', {credentials:'include'});
+      const data = res.ok ? await res.json() : [];
+      const sel = el('f_parent');
+      // keep first option
+      [...sel.querySelectorAll('option')].slice(1).forEach(opt=>opt.remove());
+      data.forEach(c=>{
+        const opt = document.createElement('option');
+        opt.value = c.id; opt.textContent = `${c.name} (${c.kind})`;
+        sel.appendChild(opt);
+      });
+    }
+
+    async function load(){
+      const res = await fetch('api/categories.php', {credentials:'include'});
+      const tbody = document.querySelector('#tbl tbody');
+      tbody.innerHTML='';
+      if(!res.ok){ el('empty').style.display='block'; el('empty').textContent='Please login first.'; return; }
+      const rows = await res.json();
+      if(!rows.length){ el('empty').style.display='block'; return; }
+      el('empty').style.display='none';
+      // build map for parent lookup
+      const byId = Object.fromEntries(rows.map(r=>[r.id,r]));
+      rows.forEach(r=>{
+        const tr = document.createElement('tr');
+        const parentName = r.parent_id ? (byId[r.parent_id]?.name || ('#'+r.parent_id)) : '';
+        tr.innerHTML = `
+          <td>${r.id}</td>
+          <td>${r.name}</td>
+          <td>${r.kind}</td>
+          <td>${parentName}</td>
+          <td>
+            <button class="btn" data-act="edit" data-id="${r.id}">Edit</button>
+            <button class="btn" data-act="del" data-id="${r.id}">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function fillForm(row){
+      el('f_id').value=row.id; el('f_name').value=row.name; el('f_kind').value=row.kind;
+      el('f_parent').value=row.parent_id || '';
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    async function save(){
+      const b = {
+        id: el('f_id').value ? +el('f_id').value : undefined,
+        name: el('f_name').value.trim(),
+        kind: el('f_kind').value,
+        parent_id: el('f_parent').value ? +el('f_parent').value : null
+      };
+      if(!b.name){ el('msg').textContent='Name is required.'; return; }
+      const method = b.id ? 'PUT' : 'POST';
+      const res = await fetch('api/categories.php',{method, headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify(b)});
+      if(!res.ok){ el('msg').textContent = 'Save failed ('+res.status+').'; return; }
+      el('msg').textContent = 'Saved.'; clearForm(); await loadOptions(); load();
+    }
+
+    async function del(id){
+      if(!confirm('Delete category '+id+'?')) return;
+      const res = await fetch('api/categories.php?id='+id,{method:'DELETE', credentials:'include'});
+      if(!res.ok){ alert('Delete failed'); return; }
+      await loadOptions(); load();
+    }
+
+    document.addEventListener('click', e=>{
+      const t = e.target;
+      if(t.matches('#btn-save')) save();
+      if(t.matches('#btn-clear')) clearForm();
+      if(t.matches('#btn-refresh')) { loadOptions(); load(); }
+      if(t.dataset.act==='edit'){
+        const tr = t.closest('tr');
+        const row = {
+          id: +t.dataset.id,
+          name: tr.children[1].textContent,
+          kind: tr.children[2].textContent,
+          parent_id: null // will try to set via lookup on next refresh
+        };
+        fillForm(row);
+      }
+      if(t.dataset.act==='del') del(+t.dataset.id);
+    });
+
+    document.addEventListener('DOMContentLoaded', async ()=>{ await loadOptions(); load(); });
+  </script>
+</body>
+</html>
