@@ -53,6 +53,8 @@ try {
 <head>
   <meta charset="utf-8">
   <title>PFMS — Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+
 </head>
 <body>
   <h1>PFMS Dashboard 🚀</h1>
