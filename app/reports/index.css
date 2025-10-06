@@ -1,0 +1,83 @@
+/* index.css - professional light theme for reports */
+
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 20px;
+}
+
+h2, h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+p, form, nav {
+    margin-bottom: 15px;
+}
+
+a {
+    color: #3498db;
+    text-decoration: none;
+    margin-right: 8px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+form input, form select, form button {
+    padding: 6px 10px;
+    margin-right: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+form button {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+form button:hover {
+    background-color: #2980b9;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+table th {
+    background-color: #ecf0f1;
+    text-align: left;
+    padding: 8px;
+    font-weight: 600;
+}
+
+table td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+th, td {
+    text-align: left;
+}
+
+th:last-child, td:last-child {
+    text-align: center;
+}
+
+nav b {
+    margin-right: 5px;
+}

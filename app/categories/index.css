@@ -1,0 +1,127 @@
+/* === GENERAL STYLES === */
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f5f7fa;
+  color: #333;
+  margin: 0;
+  padding: 40px 20px;
+}
+
+/* === HEADINGS === */
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #1f2937;
+}
+
+/* === LINKS === */
+a {
+  color: #4f46e5;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #3730a3;
+  text-decoration: underline;
+}
+
+/* === FILTER FORM === */
+form {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+form label {
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+form select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+form select:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 5px rgba(79,70,229,0.3);
+}
+
+/* === TABLE STYLING === */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+  background: #f3f4f6;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background: #f9fafb;
+}
+
+/* === ACTION LINKS === */
+td a {
+  margin-right: 8px;
+  font-weight: 500;
+}
+
+td a:hover {
+  color: #2563eb;
+}
+
+/* === ADD BUTTONS LINKS === */
+p a {
+  display: inline-block;
+  margin: 0 5px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: #4f46e5;
+  color: #fff;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+p a:hover {
+  background: #3730a3;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 768px) {
+  body {
+    padding: 20px 10px;
+  }
+
+  table, th, td {
+    font-size: 0.9rem;
+  }
+
+  p a {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+}

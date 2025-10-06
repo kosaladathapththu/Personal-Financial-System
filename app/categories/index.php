@@ -31,6 +31,8 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
   <meta charset="utf-8">
   <title>Categories</title>
+  <!-- Link to professional light CSS -->
+  <link rel="stylesheet" href="<?= APP_BASE ?>/app/categories/index.css">
 </head>
 <body>
   <h2>Categories</h2>
@@ -40,7 +42,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <a href="<?= APP_BASE ?>/public/dashboard.php">🏠 Dashboard</a>
   </p>
 
-  <form method="get" style="margin-bottom:10px;">
+  <form method="get">
     <label>Filter:</label>
     <select name="type" onchange="this.form.submit()">
       <option value="ALL"     <?= $typeFilter==='ALL'?'selected':'' ?>>ALL</option>
@@ -50,7 +52,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <noscript><button type="submit">Apply</button></noscript>
   </form>
 
-  <table border="1" cellpadding="6" cellspacing="0">
+  <table>
     <tr>
       <th>ID</th>
       <th>Name</th>

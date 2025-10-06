@@ -1,5 +1,4 @@
 <?php
-// go up 3 levels to reach /pfms/config and /pfms/db
 require __DIR__ . '/../../../config/env.php';
 require __DIR__ . '/../../../db/sqlite.php';
 require __DIR__ . '/../common/auth_guard.php';
@@ -17,22 +16,28 @@ $stmt->execute([$uid]);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Accounts</title>
+  <link rel="stylesheet" href="index.css">
 </head>
 <body>
 <h2>Accounts 💼</h2>
 
 <p>
-  <a href="<?= APP_BASE ?>/app/auth/accounts/create.php">+ Add Account</a> |
-  <a href="<?= APP_BASE ?>/public/dashboard.php">← Back</a>
+  <a class="add-btn" href="<?= APP_BASE ?>/app/auth/accounts/create.php">+ Add Account</a>
+  <a class="back-btn" href="<?= APP_BASE ?>/public/dashboard.php">← Back</a>
 </p>
 
-<table border="1" cellpadding="8" cellspacing="0">
+<table>
   <tr>
-    <th>Name</th><th>Type</th><th>Currency</th><th>Opening</th><th>Status</th><th>Actions</th>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Currency</th>
+    <th>Opening</th>
+    <th>Status</th>
+    <th>Actions</th>
   </tr>
   <?php foreach($rows as $r): ?>
   <tr>
@@ -42,7 +47,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <td><?= number_format((float)$r['opening_balance'], 2) ?></td>
     <td><?= $r['is_active'] ? 'Active' : 'Inactive' ?></td>
     <td>
-      <a href="<?= APP_BASE ?>/app/auth/accounts/edit.php?id=<?= (int)$r['local_account_id'] ?>">Edit</a> |
+      <a href="<?= APP_BASE ?>/app/auth/accounts/edit.php?id=<?= (int)$r['local_account_id'] ?>">Edit</a>
       <a href="<?= APP_BASE ?>/app/auth/accounts/toggle.php?id=<?= (int)$r['local_account_id'] ?>">
         <?= $r['is_active'] ? 'Deactivate' : 'Activate' ?>
       </a>
