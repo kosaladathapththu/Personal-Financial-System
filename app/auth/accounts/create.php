@@ -5,7 +5,7 @@ require __DIR__ . '/../../../db/sqlite.php';
 require __DIR__ . '/../common/auth_guard.php';
 
 // ---- utils (load if exists; otherwise provide fallbacks) ----
-$util = __DIR__ . '/../util.php';            // you have app/auth/util.php in your tree
+$util = __DIR__ . '/../util.php';
 if (file_exists($util)) {
     require $util;
 }
@@ -18,7 +18,6 @@ if (!function_exists('h')) {
 
 $pdo = sqlite();
 $uid = (int)($_SESSION['uid'] ?? 0);
-
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -46,43 +45,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!doctype html>
-<html>
-<head><meta charset="utf-8"><title>Create Account</title></head>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Create Account</title>
+  <link rel="stylesheet" href="create.css">
+</head>
 <body>
-<h2>Create Account 💼➕</h2>
-<p><a href="<?= APP_BASE ?>/app/auth/accounts/index.php">← Back</a></p>
+  <div class="page-wrapper">
+    <div class="card">
+      <p><a href="<?= APP_BASE ?>/app/auth/accounts/index.php">← Back</a></p>
+      <h2>Create Account</h2>
 
-<?php if (!empty($errors)): ?>
-  <div style="color:#b00020">
-    <b>Please fix:</b>
-    <ul>
-      <?php foreach ($errors as $e): ?>
-        <li><?= h($e) ?></li>
-      <?php endforeach; ?>
-    </ul>
+      <?php if (!empty($errors)): ?>
+        <div class="error">
+          <b>Please fix:</b>
+          <ul>
+            <?php foreach ($errors as $e): ?>
+              <li><?= h($e) ?></li>
+            <?php endforeach; ?>
+          </ul>
+        </div>
+      <?php endif; ?>
+
+      <form method="post">
+        <label>Name</label>
+        <input name="account_name" placeholder="e.g., Cash Wallet" value="<?= h($_POST['account_name'] ?? '') ?>" required>
+
+        <label>Type</label>
+        <select name="account_type" required>
+          <option value="CASH"   <?= (($_POST['account_type'] ?? '')==='CASH')?'selected':'' ?>>CASH</option>
+          <option value="BANK"   <?= (($_POST['account_type'] ?? '')==='BANK')?'selected':'' ?>>BANK</option>
+          <option value="CARD"   <?= (($_POST['account_type'] ?? '')==='CARD')?'selected':'' ?>>CARD</option>
+          <option value="MOBILE" <?= (($_POST['account_type'] ?? '')==='MOBILE')?'selected':'' ?>>MOBILE</option>
+        </select>
+
+        <label>Currency</label>
+        <input name="currency_code" value="<?= h($_POST['currency_code'] ?? 'LKR') ?>">
+
+        <label>Opening Balance</label>
+        <input name="opening_balance" type="number" step="0.01" value="<?= h($_POST['opening_balance'] ?? '0') ?>">
+
+        <div class="form-actions">
+          <button type="submit">💾 Save</button>
+          <a class="cancel-btn" href="<?= APP_BASE ?>/app/auth/accounts/index.php">Cancel</a>
+        </div>
+      </form>
+    </div>
   </div>
-<?php endif; ?>
-
-<form method="post">
-  <label>Name</label><br>
-  <input name="account_name" placeholder="e.g., Cash Wallet" value="<?= h($_POST['account_name'] ?? '') ?>" required><br><br>
-
-  <label>Type</label><br>
-  <select name="account_type" required>
-    <option value="CASH"   <?= (($_POST['account_type'] ?? '')==='CASH')?'selected':'' ?>>CASH</option>
-    <option value="BANK"   <?= (($_POST['account_type'] ?? '')==='BANK')?'selected':'' ?>>BANK</option>
-    <option value="CARD"   <?= (($_POST['account_type'] ?? '')==='CARD')?'selected':'' ?>>CARD</option>
-    <option value="MOBILE" <?= (($_POST['account_type'] ?? '')==='MOBILE')?'selected':'' ?>>MOBILE</option>
-  </select><br><br>
-
-  <label>Currency</label><br>
-  <input name="currency_code" value="<?= h($_POST['currency_code'] ?? 'LKR') ?>"><br><br>
-
-  <label>Opening Balance</label><br>
-  <input name="opening_balance" type="number" step="0.01" value="<?= h($_POST['opening_balance'] ?? '0') ?>"><br><br>
-
-  <button type="submit">Save</button>
-  <a href="<?= APP_BASE ?>/app/auth/accounts/index.php">Cancel</a>
-</form>
 </body>
 </html>

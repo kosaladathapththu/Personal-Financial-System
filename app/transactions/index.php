@@ -1,10 +1,9 @@
 <?php
 require __DIR__ . '/../../config/env.php';
 require __DIR__ . '/../../db/sqlite.php';
-require __DIR__ . '/../auth/common/auth_guard.php'; // <-- fixed path
-require __DIR__ . '/../auth/common/util.php';       // <-- fixed path (if you have util.php)
+require __DIR__ . '/../auth/common/auth_guard.php'; 
+require __DIR__ . '/../auth/common/util.php';       
 
-// If util.php doesn't exist, this fallback keeps things working.
 if (!function_exists('h')) {
     function h($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 }
@@ -12,14 +11,14 @@ if (!function_exists('h')) {
 $pdo = sqlite();
 $uid = (int)($_SESSION['uid'] ?? 0);
 
-// filters
+// Filters
 $from = $_GET['from'] ?? '';
 $to   = $_GET['to'] ?? '';
 $acc  = $_GET['account'] ?? '';
 $cat  = $_GET['category'] ?? '';
 $typ  = $_GET['type'] ?? '';
 
-// dropdown data
+// Dropdown data
 $accounts = $pdo->prepare("
   SELECT local_account_id, account_name
   FROM ACCOUNTS_LOCAL
@@ -38,7 +37,7 @@ $categories = $pdo->prepare("
 $categories->execute([$uid]);
 $categories = $categories->fetchAll(PDO::FETCH_ASSOC);
 
-// build WHERE
+// Build WHERE
 $where = ["t.user_local_id = ?"];
 $args  = [$uid];
 
@@ -50,6 +49,7 @@ if ($typ  !== '' && in_array($typ, ['INCOME','EXPENSE'], true)) {
   $where[] = "t.txn_type = ?"; $args[] = $typ;
 }
 
+// Fetch transactions
 $sql = "
 SELECT
   t.local_txn_id, t.client_txn_uuid, t.txn_type, t.amount, t.txn_date, t.note, t.sync_status,
@@ -66,7 +66,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($args);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// totals
+// Totals
 $totSql = "
 SELECT
   SUM(CASE WHEN t.txn_type='INCOME'  THEN t.amount ELSE 0 END) AS total_income,
@@ -86,15 +86,18 @@ $net     = $income - $expense;
 <head>
   <meta charset="utf-8">
   <title>Transactions</title>
+  <!-- Link professional light CSS -->
+  <link rel="stylesheet" href="<?= APP_BASE ?>/app/transactions/index.css">
 </head>
 <body>
 <h2>Transactions 💵</h2>
+
 <p>
   <a href="<?= APP_BASE ?>/app/transactions/create.php">+ Add Transaction</a> |
   <a href="<?= APP_BASE ?>/public/dashboard.php">← Back</a>
 </p>
 
-<form method="get" style="margin:10px 0; padding:8px; border:1px solid #ccc;">
+<form method="get">
   <b>Filters 🔎</b><br>
   <label>From</label>
   <input type="date" name="from" value="<?= h($from) ?>">
@@ -135,9 +138,16 @@ $net     = $income - $expense;
   <li>Net: <b><?= number_format($net,2) ?></b></li>
 </ul>
 
-<table border="1" cellpadding="6">
+<table>
   <tr>
-    <th>Date</th><th>Type</th><th>Amount</th><th>Account</th><th>Category</th><th>Note</th><th>Sync</th><th>Actions</th>
+    <th>Date</th>
+    <th>Type</th>
+    <th>Amount</th>
+    <th>Account</th>
+    <th>Category</th>
+    <th>Note</th>
+    <th>Sync</th>
+    <th>Actions</th>
   </tr>
   <?php foreach($rows as $r): ?>
   <tr>

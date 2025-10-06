@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/../../config/env.php';
 require __DIR__ . '/../../db/sqlite.php';
-require __DIR__ . '/../auth/common/auth_guard.php'; // <-- fixed path
+require __DIR__ . '/../auth/common/auth_guard.php';
 
 $pdo = sqlite();
 $uid = (int)($_SESSION['uid'] ?? 0);
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors[] = "Invalid type";
   }
 
-  // If parent selected, validate same user + same type
+  // Validate parent
   if ($parentId !== null) {
     $chk = $pdo->prepare("
       SELECT category_type
@@ -58,12 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ");
     $ins->execute([$uid, $parentId, $name, $type, $now, $now]);
 
-    // Redirect back to categories list
     header('Location: ' . APP_BASE . '/app/categories/index.php');
     exit;
   }
 
-  // Reload parents for the selected type after POST (in case type changed)
+  // Reload parent options
   $parentStmt->execute([$uid, $type ?: $selectedType]);
   $parentOptions = $parentStmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -73,47 +72,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="utf-8">
   <title>Add Category</title>
+  <!-- Link to modern CSS -->
+  <link rel="stylesheet" href="<?= APP_BASE ?>/app/categories/create.css">
 </head>
 <body>
-  <h2>Add Category</h2>
-  <p><a href="<?= APP_BASE ?>/app/categories/index.php">← Back</a></p>
-
-  <?php if ($errors): ?>
-    <div style="color:red">
-      <b>Please fix:</b>
-      <ul>
-        <?php foreach($errors as $e): ?>
-          <li><?= htmlspecialchars($e) ?></li>
-        <?php endforeach; ?>
-      </ul>
-    </div>
-  <?php endif; ?>
 
   <form method="post">
-    <label>Name</label><br>
-    <input name="category_name" value="<?= htmlspecialchars($_POST['category_name'] ?? '') ?>" required><br><br>
+    <h2>Add Category</h2>
+    <p><a href="<?= APP_BASE ?>/app/categories/index.php">← Back</a></p>
 
-    <label>Type</label><br>
+    <?php if ($errors): ?>
+      <div>
+        <b>Please fix:</b>
+        <ul>
+          <?php foreach($errors as $e): ?>
+            <li><?= htmlspecialchars($e) ?></li>
+          <?php endforeach; ?>
+        </ul>
+      </div>
+    <?php endif; ?>
+
+    <label>Name</label>
+    <input name="category_name" value="<?= htmlspecialchars($_POST['category_name'] ?? '') ?>" required>
+
+    <label>Type</label>
     <select name="category_type" onchange="this.form.submit()">
-      <option value="INCOME"  <?= ($selectedType === 'INCOME'  || ($_POST['category_type'] ?? '') === 'INCOME')  ? 'selected' : '' ?>>INCOME</option>
+      <option value="INCOME" <?= ($selectedType === 'INCOME' || ($_POST['category_type'] ?? '') === 'INCOME') ? 'selected' : '' ?>>INCOME</option>
       <option value="EXPENSE" <?= ($selectedType === 'EXPENSE' || ($_POST['category_type'] ?? '') === 'EXPENSE') ? 'selected' : '' ?>>EXPENSE</option>
     </select>
     <small>Changing type reloads parent list</small>
-    <br><br>
 
-    <label>Parent (optional, same type)</label><br>
+    <label>Parent (optional, same type)</label>
     <select name="parent_local_id">
       <option value="">— None —</option>
       <?php foreach($parentOptions as $p): ?>
-        <option value="<?= (int)$p['local_category_id'] ?>"
-          <?= (($_POST['parent_local_id'] ?? '') == $p['local_category_id']) ? 'selected' : '' ?>>
+        <option value="<?= (int)$p['local_category_id'] ?>" <?= (($_POST['parent_local_id'] ?? '') == $p['local_category_id']) ? 'selected' : '' ?>>
           <?= htmlspecialchars($p['category_name']) ?>
         </option>
       <?php endforeach; ?>
     </select>
-    <br><br>
 
     <button type="submit">Save</button>
   </form>
+
 </body>
 </html>

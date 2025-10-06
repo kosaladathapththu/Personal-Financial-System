@@ -1,15 +1,13 @@
 <?php
 require __DIR__ . '/../../config/env.php';
 require __DIR__ . '/../../db/sqlite.php';
-
-// ---- Auth guard (corrected path) ----
 require __DIR__ . '/../auth/common/auth_guard.php';
 
-// ---- Util helpers (try typical locations, else fallback helpers) ----
+// ---- Util helpers ----
 $utilCandidates = [
-    __DIR__ . '/../auth/util.php',          // app/auth/util.php (as in your tree)
-    __DIR__ . '/../auth/common/util.php',   // app/auth/common/util.php (if you move it later)
-    __DIR__ . '/../common/util.php',        // legacy/path if you ever create it
+    __DIR__ . '/../auth/util.php',
+    __DIR__ . '/../auth/common/util.php',
+    __DIR__ . '/../common/util.php',
 ];
 foreach ($utilCandidates as $utilPath) {
     if (file_exists($utilPath)) {
@@ -17,7 +15,7 @@ foreach ($utilCandidates as $utilPath) {
         break;
     }
 }
-// Fallbacks if util.php not found
+
 if (!function_exists('now_iso')) {
     function now_iso(): string { return date('Y-m-d H:i:s'); }
 }
@@ -32,11 +30,10 @@ if (!function_exists('uuidv4')) {
 
 $pdo = sqlite();
 $uid = (int)($_SESSION['uid'] ?? 0);
-
 $errors = [];
-$typ = $_POST['txn_type'] ?? 'EXPENSE'; // default EXPENSE
+$typ = $_POST['txn_type'] ?? 'EXPENSE';
 
-// dropdowns
+// --- Dropdowns ---
 $accounts = $pdo->prepare("
   SELECT local_account_id, account_name
   FROM ACCOUNTS_LOCAL
@@ -46,7 +43,6 @@ $accounts = $pdo->prepare("
 $accounts->execute([$uid]);
 $accounts = $accounts->fetchAll(PDO::FETCH_ASSOC);
 
-// categories filtered by type (reload on change)
 $catStmt = $pdo->prepare("
   SELECT local_category_id, category_name
   FROM CATEGORIES_LOCAL
@@ -56,6 +52,7 @@ $catStmt = $pdo->prepare("
 $catStmt->execute([$uid, $typ]);
 $catOptions = $catStmt->fetchAll(PDO::FETCH_ASSOC);
 
+// --- Handle POST ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
   $date = $_POST['txn_date'] ?? '';
   $type = $_POST['txn_type'] ?? '';
@@ -70,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
   if ($cat <= 0)   $errors[] = "Category is required";
   if ($amt <= 0)   $errors[] = "Amount must be > 0";
 
-  // validate category type matches
+  // Validate category type
   if ($cat > 0) {
     $chk = $pdo->prepare("
       SELECT category_type
@@ -79,9 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     ");
     $chk->execute([$cat, $uid]);
     $c = $chk->fetch(PDO::FETCH_ASSOC);
-    if (!$c || $c['category_type'] !== $type) {
-        $errors[] = "Category must match the selected type";
-    }
+    if (!$c || $c['category_type'] !== $type) $errors[] = "Category must match the selected type";
   }
 
   if (!$errors) {
@@ -100,14 +95,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     exit;
   }
 
-  // If POSTed type changed, refresh category options
+  // Refresh categories if type changed
   $catStmt->execute([$uid, $type ?: $typ]);
   $catOptions = $catStmt->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title>Add Transaction</title></head>
+<head>
+  <meta charset="utf-8">
+  <title>Add Transaction</title>
+  <!-- Link professional light CSS -->
+  <link rel="stylesheet" href="<?= APP_BASE ?>/app/transactions/create.css">
+</head>
 <body>
 <h2>Add Transaction ➕💵</h2>
 <p><a href="<?= APP_BASE ?>/app/transactions/index.php">← Back</a></p>

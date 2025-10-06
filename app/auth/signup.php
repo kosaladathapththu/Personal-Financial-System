@@ -3,39 +3,67 @@ session_start();
 require __DIR__ . '/../../config/env.php';
 require __DIR__ . '/../../db/sqlite.php';
 
+$error = '';
+$success = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $email = trim($_POST['email'] ?? '');
-  $name  = trim($_POST['full_name'] ?? '');
-  $pass  = $_POST['password'] ?? '';
+    $email = trim($_POST['email'] ?? '');
+    $pass  = $_POST['password'] ?? '';
+    $confirm = $_POST['confirm_password'] ?? '';
 
-  if ($email === '' || $name === '' || strlen($pass) < 6) {
-    http_response_code(422);
-    echo "Invalid input"; exit;
-  }
-
-  $hash = password_hash($pass, PASSWORD_DEFAULT);
-  $pdo = sqlite();
-
-  $stmt = $pdo->prepare("INSERT INTO USERS_LOCAL(email, password_hash, full_name) VALUES(?,?,?)");
-  try {
-    $stmt->execute([$email, $hash, $name]);
-    $_SESSION['uid'] = (int)$pdo->lastInsertId();
-    header('Location: ' . url('/public/dashboard.php'));
-  } catch (PDOException $e) {
-    if (str_contains($e->getMessage(), 'UNIQUE')) {
-      http_response_code(409);
-      echo "Email already exists";
+    if ($email && $pass && $confirm) {
+        if ($pass !== $confirm) {
+            $error = "Passwords do not match";
+        } else {
+            $pdo = sqlite();
+            // Check if email exists
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM USERS_LOCAL WHERE email=?");
+            $stmt->execute([$email]);
+            if ($stmt->fetchColumn() > 0) {
+                $error = "Email already registered";
+            } else {
+                $hash = password_hash($pass, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare("INSERT INTO USERS_LOCAL (email, password_hash) VALUES (?, ?)");
+                $stmt->execute([$email, $hash]);
+                $success = "Account created successfully! You can now <a href='login.php'>login</a>.";
+            }
+        }
     } else {
-      throw $e;
+        $error = "All fields are required";
     }
-  }
-  exit;
 }
 ?>
-<!-- simple form (structure only) -->
-<form method="post">
-  <input name="full_name" placeholder="Full Name">
-  <input name="email" type="email" placeholder="Email">
-  <input name="password" type="password" placeholder="Password (min 6)">
-  <button type="submit">Sign up</button>
-</form>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PFMS — Sign Up</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+  <div class="login-card">
+    <h1>PFMS Sign Up ✍️</h1>
+
+    <?php if ($error): ?>
+      <div class="error"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
+    <?php if ($success): ?>
+      <div class="success"><?= $success ?></div>
+    <?php endif; ?>
+
+    <form method="post" autocomplete="off">
+      <input name="email" type="email" placeholder="Email" required>
+      <input name="password" type="password" placeholder="Password" required>
+      <input name="confirm_password" type="password" placeholder="Confirm Password" required>
+      <button type="submit">Sign Up</button>
+    </form>
+    <p class="signup-text">Already have an account? 
+      <a href="login.php" class="signup-btn">Login</a>
+    </p>
+  </div>
+
+  <footer>
+    &copy; <?= date('Y') ?> PFMS — Personal Finance Management System
+  </footer>
+</body>
+</html>
