@@ -1,0 +1,106 @@
+/* index.css */
+
+/* General page styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f6fa;
+    color: #333;
+    margin: 20px;
+}
+
+h2 {
+    color: #2f3640;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+/* Links / buttons */
+a {
+    text-decoration: none;
+    margin-right: 10px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    font-size: 14px;
+}
+
+/* Add account button */
+.add-btn {
+    background-color: #00b894;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+.add-btn:hover {
+    background-color: #55efc4;
+}
+
+/* Back button */
+.back-btn {
+    background-color: #0984e3;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+.back-btn:hover {
+    background-color: #74b9ff;
+}
+
+/* Paragraphs */
+p {
+    margin-bottom: 20px;
+}
+
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #0984e3;
+    color: #fff;
+    font-weight: 600;
+}
+
+tr:nth-child(even) {
+    background-color: #f1f2f6;
+}
+
+tr:hover {
+    background-color: #dfe6e9;
+}
+
+/* Table action buttons */
+td a {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+td a:first-child {
+    background-color: #00b894;
+    color: #fff;
+}
+
+td a:first-child:hover {
+    background-color: #55efc4;
+}
+
+td a:last-child {
+    background-color: #d63031;
+    color: #fff;
+}
+
+td a:last-child:hover {
+    background-color: #ff7675;
+}

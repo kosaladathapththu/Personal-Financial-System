@@ -53,29 +53,55 @@ try {
 <head>
   <meta charset="utf-8">
   <title>PFMS — Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
-  <h1>PFMS Dashboard 🚀</h1>
 
-  
-  <nav>
-  <a href="<?= APP_BASE ?>/app/auth/accounts/index.php">💼 Accounts</a> |
-  <a href="<?= APP_BASE ?>/app/categories/index.php">🏷️ Categories</a> |
-  <a href="<?= APP_BASE ?>/app/transactions/index.php">💵 Transactions</a> |
-  <a href="<?= APP_BASE ?>/app/reports/index.php">📊 Reports</a> |
-  <a href="<?= APP_BASE ?>/public/sync.php">🔁 Sync</a> |
-  <a href="<?= APP_BASE ?>/public/logout.php">🚪 Logout</a>
-</nav>
+  <!-- === NAVBAR === -->
+  <div class="navbar">
+    <h1>PFMS Dashboard </h1>
+    <button class="logout-btn" onclick="location.href='<?= APP_BASE ?>/public/logout.php'">Logout</button>
+  </div>
 
-  <hr>
+  <!-- === MAIN CONTAINER === -->
+  <div class="main-container">
 
-  <h3>Quick Stats 📈</h3>
-  <ul>
-    <li>Accounts: <b><?= $acc_count ?></b></li>
-    <li>Categories: <b><?= $cat_count ?></b></li>
-    <li>Transactions: <b><?= $txn_count ?></b></li>
-  </ul>
+    <div class="card">
+      <h2>💼 Accounts</h2>
+      <p>You have <b><?= $acc_count ?></b> accounts.</p>
+      <a href="<?= APP_BASE ?>/app/auth/accounts/index.php">Manage Accounts</a>
+    </div>
 
-  <p>Tip: Start by creating <a href="/pfms/app/categories/create.php">your first account</a> 🧱</p>
+    <div class="card">
+      <h2>🏷️ Categories</h2>
+      <p>You have <b><?= $cat_count ?></b> categories.</p>
+      <a href="<?= APP_BASE ?>/app/categories/index.php">Manage Categories</a>
+    </div>
+
+    <div class="card">
+      <h2>💵 Transactions</h2>
+      <p>You have <b><?= $txn_count ?></b> transactions.</p>
+      <a href="<?= APP_BASE ?>/app/transactions/index.php">View Transactions</a>
+    </div>
+
+    <div class="card">
+      <h2>📊 Reports</h2>
+      <p>Generate detailed financial reports.</p>
+      <a href="<?= APP_BASE ?>/app/reports/index.php">View Reports</a>
+    </div>
+
+    <div class="card">
+      <h2>🔁 Sync</h2>
+      <p>Sync your local data with the cloud.</p>
+      <a href="<?= APP_BASE ?>/public/sync.php">Start Sync</a>
+    </div>
+
+  </div>
+
+  <!-- === FOOTER === -->
+  <footer>
+    <p>&copy; <?= date('Y') ?> PFMS — Personal Finance Management System</p>
+  </footer>
+
 </body>
 </html>
