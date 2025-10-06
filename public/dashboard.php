@@ -59,15 +59,15 @@ try {
 <body>
   <h1>PFMS Dashboard 🚀</h1>
 
-  <!-- Removed url() helper; use absolute paths -->
+  
   <nav>
-    <a href="/pfms/app/accounts/index.php">💼 Accounts</a> |
-    <a href="/pfms/app/categories/index.php">🏷️ Categories</a> |
-    <a href="/pfms/app/transactions/index.php">💵 Transactions</a> |
-    <a href="/pfms/app/reports/index.php">📊 Reports</a> |
-    <a href="/pfms/public/sync.php">🔁 Sync</a> |
-    <a href="/pfms/public/logout.php">🚪 Logout</a>
-  </nav>
+  <a href="<?= APP_BASE ?>/app/auth/accounts/index.php">💼 Accounts</a> |
+  <a href="<?= APP_BASE ?>/app/categories/index.php">🏷️ Categories</a> |
+  <a href="<?= APP_BASE ?>/app/transactions/index.php">💵 Transactions</a> |
+  <a href="<?= APP_BASE ?>/app/reports/index.php">📊 Reports</a> |
+  <a href="<?= APP_BASE ?>/public/sync.php">🔁 Sync</a> |
+  <a href="<?= APP_BASE ?>/public/logout.php">🚪 Logout</a>
+</nav>
 
   <hr>
 

@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/../../config/env.php';
 require __DIR__ . '/../../db/sqlite.php';
-require __DIR__ . '/../common/auth_guard.php';
+require __DIR__ . '/../auth/common/auth_guard.php'; // <-- fixed path
 
 $pdo = sqlite();
 $uid = (int)$_SESSION['uid'];
