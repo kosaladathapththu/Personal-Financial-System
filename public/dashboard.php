@@ -49,58 +49,88 @@ try {
 }
 ?>
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PFMS — Dashboard</title>
+  
+  <!-- Font Awesome 5 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
 
   <!-- === NAVBAR === -->
   <div class="navbar">
-    <h1>PFMS Dashboard </h1>
-    <button class="logout-btn" onclick="location.href='<?= APP_BASE ?>/public/logout.php'">Logout</button>
+    <h1>PFMS Dashboard</h1>
+    <button class="logout-btn" onclick="location.href='<?= APP_BASE ?>/public/logout.php'">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </button>
   </div>
 
   <!-- === MAIN CONTAINER === -->
   <div class="main-container">
 
-    <div class="card">
-      <h2>💼 Accounts</h2>
+    <div class="card" data-card="accounts">
+      <h2 data-icon="&#xf53d;">
+        <i class="fas fa-wallet"></i> Accounts
+      </h2>
       <p>You have <b><?= $acc_count ?></b> accounts.</p>
-      <a href="<?= APP_BASE ?>/app/auth/accounts/index.php">Manage Accounts</a>
+      <a href="<?= APP_BASE ?>/app/auth/accounts/index.php">
+        <i class="fas fa-cog"></i> Manage Accounts
+      </a>
     </div>
 
-    <div class="card">
-      <h2>🏷️ Categories</h2>
+    <div class="card" data-card="categories">
+      <h2 data-icon="&#xf02b;">
+        <i class="fas fa-tags"></i> Categories
+      </h2>
       <p>You have <b><?= $cat_count ?></b> categories.</p>
-      <a href="<?= APP_BASE ?>/app/categories/index.php">Manage Categories</a>
+      <a href="<?= APP_BASE ?>/app/categories/index.php">
+        <i class="fas fa-edit"></i> Manage Categories
+      </a>
     </div>
 
-    <div class="card">
-      <h2>💵 Transactions</h2>
+    <div class="card" data-card="transactions">
+      <h2 data-icon="&#xf155;">
+        <i class="fas fa-money-bill-wave"></i> Transactions
+      </h2>
       <p>You have <b><?= $txn_count ?></b> transactions.</p>
-      <a href="<?= APP_BASE ?>/app/transactions/index.php">View Transactions</a>
+      <a href="<?= APP_BASE ?>/app/transactions/index.php">
+        <i class="fas fa-list"></i> View Transactions
+      </a>
     </div>
 
-    <div class="card">
-      <h2>📊 Reports</h2>
+    <div class="card" data-card="reports">
+      <h2 data-icon="&#xf201;">
+        <i class="fas fa-chart-line"></i> Reports
+      </h2>
       <p>Generate detailed financial reports.</p>
-      <a href="<?= APP_BASE ?>/app/reports/index.php">View Reports</a>
+      <a href="<?= APP_BASE ?>/app/reports/index.php">
+        <i class="fas fa-eye"></i> View Reports
+      </a>
     </div>
 
-    <div class="card">
-      <h2>🔁 Sync</h2>
+    <div class="card" data-card="sync">
+      <h2 data-icon="&#xf2f1;">
+        <i class="fas fa-sync-alt"></i> Sync
+      </h2>
       <p>Sync your local data with the cloud.</p>
-      <a href="<?= APP_BASE ?>/public/sync.php">Start Sync</a>
+      <a href="<?= APP_BASE ?>/public/sync.php">
+        <i class="fas fa-cloud-upload-alt"></i> Start Sync
+      </a>
     </div>
 
   </div>
 
   <!-- === FOOTER === -->
   <footer>
-    <p>&copy; <?= date('Y') ?> PFMS — Personal Finance Management System</p>
+    <p>
+      <i class="fas fa-copyright"></i> <?= date('Y') ?> PFMS — Personal Finance Management System
+    </p>
   </footer>
 
 </body>
