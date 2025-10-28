@@ -4,13 +4,14 @@
 
 ### *Track. Analyze. Prosper.*
 
-**A clean, secure, and minimal financial tracker built with PHP + SQLite**  
-*Track your income, expenses, and reports — all offline and lightweight!*
+**A clean, secure, and minimal financial tracker built with PHP + SQLite + Oracle**  
+*Track your income, expenses, and reports — with cloud synchronization capabilities!*
 
 <br>
 
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-777BB4?logo=php&logoColor=white&style=for-the-badge)
 ![SQLite](https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite&logoColor=white&style=for-the-badge)
+![Oracle](https://img.shields.io/badge/Oracle-DB-F80000?logo=oracle&logoColor=white&style=for-the-badge)
 ![XAMPP](https://img.shields.io/badge/XAMPP-Server-FB7A24?logo=xampp&logoColor=white&style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
@@ -26,13 +27,14 @@
 
 </div>
 
-> The **Personal Financial Management System (PFMS)** empowers users to effortlessly manage their daily expenses, income, and view detailed monthly or annual summaries. Built with privacy in mind, it's fully offline using **SQLite**, written in **pure PHP (PDO)**, and features a sleek, responsive dark UI.
+> The **Personal Financial Management System (PFMS)** empowers users to effortlessly manage their daily expenses, income, and view detailed monthly or annual summaries. Built with flexibility in mind, it operates **offline with SQLite** for local storage and **syncs with Oracle Database** for cloud backup and multi-device access. Written in **pure PHP (PDO)** and featuring a sleek, responsive dark UI.
 
 **Why PFMS?**
-- 🔒 **100% Offline** — Your data never leaves your machine
-- ⚡ **Lightning Fast** — SQLite ensures instant queries
+- 🔒 **Hybrid Architecture** — Work offline with SQLite, sync to Oracle Cloud
+- ☁️ **Cloud Synchronization** — Backup and access data across devices
+- ⚡ **Lightning Fast** — SQLite for instant local queries, Oracle for enterprise reliability
 - 🎨 **Beautiful UI** — Modern, clean, and intuitive interface
-- 🔐 **Bank-Grade Security** — Encrypted passwords and session management
+- 🔐 **Bank-Grade Security** — Encrypted passwords and secure cloud sync
 
 ---
 
@@ -83,6 +85,26 @@
 
 </td>
 </tr>
+<tr>
+<td width="50%">
+
+### ☁️ **Cloud Synchronization**
+- Oracle Database integration
+- Real-time data sync
+- Multi-device access
+- Automatic backup system
+
+</td>
+<td width="50%">
+
+### 🔄 **Hybrid Database**
+- SQLite for offline work
+- Oracle for cloud storage
+- Seamless data migration
+- Conflict resolution
+
+</td>
+</tr>
 </table>
 
 ---
@@ -94,25 +116,29 @@
 </div>
 
 ```mermaid
-graph LR
-    A[Browser] -->|HTTP| B[Apache Server]
+graph TB
+    A[Browser/User] -->|HTTP Request| B[Apache Server]
     B -->|PHP 8| C[Application Layer]
-    C -->|PDO| D[SQLite Database]
-    C -->|Sessions| E[Auth System]
+    C -->|PDO| D[SQLite Local DB]
+    C -->|PDO| E[Oracle Cloud DB]
+    C -->|Sessions| F[Auth System]
+    D <-->|Sync Engine| E
     style A fill:#4FC3F7
     style B fill:#FF7043
     style C fill:#AB47BC
     style D fill:#66BB6A
-    style E fill:#FFA726
+    style E fill:#F80000
+    style F fill:#FFA726
 ```
 
 | Layer | Technology | Purpose |
 |-------|------------|---------|
 | **Frontend** | HTML5, CSS3 | Responsive UI with dark theme |
 | **Backend** | PHP 8 (PDO) | Business logic and data handling |
-| **Database** | SQLite 3 | Lightweight, file-based storage |
+| **Local Database** | SQLite 3 | Lightweight, offline file-based storage |
+| **Cloud Database** | Oracle DB | Enterprise cloud synchronization |
 | **Server** | Apache (XAMPP) | Local development environment |
-| **Security** | Password Hash | Bcrypt encryption for passwords |
+| **Security** | Password Hash + SSL | Bcrypt encryption & secure connections |
 
 ---
 
@@ -134,13 +160,15 @@ pfms/
 │
 ├─ 📂 app/                     # Core application logic
 │  ├─ ⚡ bootstrap.php         # Application initializer
-│  └─ 🔐 Auth.php              # Authentication handler
+│  ├─ 🔐 Auth.php              # Authentication handler
+│  └─ 🔄 Sync.php              # Oracle ↔ SQLite sync engine
 │
 ├─ 📂 config/                  # Configuration files
-│  └─ ⚙️ config.php            # Database & app settings
+│  ├─ ⚙️ config.php            # Database & app settings
+│  └─ ☁️ oracle_config.php     # Oracle connection settings
 │
 ├─ 📂 storage/                 # Data persistence
-│  └─ 💾 database.sqlite       # SQLite database file
+│  └─ 💾 database.sqlite       # SQLite local database
 │
 └─ 🔒 .htaccess                # Apache rewrite rules
 ```
@@ -156,6 +184,8 @@ pfms/
 ### **Prerequisites**
 - PHP 8.0 or higher
 - Apache server (XAMPP recommended)
+- Oracle Database 11g or higher (for cloud sync)
+- Oracle Instant Client (for Oracle connectivity)
 - Git (for cloning)
 
 ### **Quick Start** ⚡
@@ -177,14 +207,27 @@ git clone https://github.com/kosaladathapththu/pfms.git
 cd pfms
 ```
 
-#### **Step 3:** Launch Application
+#### **Step 3:** Configure Oracle Connection (Optional)
+```bash
+# Edit oracle_config.php in the config folder
+nano config/oracle_config.php
+
+# Add your Oracle credentials:
+# - Host/IP address
+# - Port (default: 1521)
+# - Service name
+# - Username & password
+```
+
+#### **Step 4:** Launch Application
 1. Open your browser
 2. Navigate to: `http://localhost/pfms/public/`
 3. Click **"Get Started"**
 4. Create your account
-5. **Done!** ✅ The database auto-creates inside `/storage/database.sqlite`
+5. **Done!** ✅ The SQLite database auto-creates inside `/storage/database.sqlite`
+6. **Enable Cloud Sync** (optional) from settings to sync with Oracle
 
-> **Note:** No manual database setup required! The system automatically creates all necessary tables on first run.
+> **Note:** The system works offline by default with SQLite. Oracle synchronization is optional and can be enabled in settings for cloud backup and multi-device access.
 
 ---
 
@@ -229,13 +272,33 @@ cd pfms
 - ✅ SQL injection prevention (PDO)
 - ✅ XSS attack mitigation
 - ✅ Input validation & sanitization
-- ✅ Local-only database access
+- ✅ Secure Oracle connections (OCI8)
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### ☁️ **Cloud Security**
+- ✅ Encrypted data transmission
+- ✅ SSL/TLS for Oracle sync
+- ✅ Secure credential storage
+- ✅ Token-based authentication
+
+</td>
+<td width="50%">
+
+### 🔄 **Sync Protection**
+- ✅ Conflict resolution
+- ✅ Data integrity checks
+- ✅ Rollback on failure
+- ✅ Version control
 
 </td>
 </tr>
 </table>
 
-> **Privacy First:** Your financial data stays on your machine. No cloud. No tracking. No telemetry.
+> **Privacy Options:** Work completely offline with SQLite, or optionally enable Oracle sync for cloud backup. You control where your data lives!
 
 ---
 
@@ -259,14 +322,20 @@ cd pfms
   - [x] Monthly summaries
   - [x] Annual reports
   - [x] Category analysis
+
+- [x] **Phase 4:** Oracle Cloud Integration
+  - [x] Oracle database connectivity
+  - [x] Bidirectional sync engine
+  - [x] Conflict resolution system
+  - [x] Automatic cloud backup
   
-- [ ] **Phase 4:** Advanced Features *(In Progress)*
-  - [ ] Oracle ↔ SQLite sync layer
-  - [ ] Interactive Chart.js visualizations
+- [ ] **Phase 5:** Advanced Features *(In Progress)*
+  - [ ] Real-time sync notifications
+  - [ ] Multi-user collaboration
   - [ ] Export to PDF/Excel
   - [ ] Budget planning tools
   
-- [ ] **Phase 5:** UI Enhancement
+- [ ] **Phase 6:** UI Enhancement
   - [ ] Modern dashboard redesign
   - [ ] Tailwind CSS integration
   - [ ] Mobile-responsive optimization
