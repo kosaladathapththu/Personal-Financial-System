@@ -276,19 +276,42 @@ cd pfms
 
 <div align="center">
 
-## 👨‍💻 **Developer**
+## 👥 **Our Team**
 
+<table>
+<tr>
+<td align="center" width="33%">
 <img src="https://github.com/kosaladathapththu.png" width="120" style="border-radius: 50%; border: 3px solid #4CAF50;">
+<br>
+<b>Kosala Daneshwara Athapaththu</b>
+<br>
+<sub>Full Stack Developer</sub>
+<br><br>
+<a href="https://github.com/kosaladathapththu"><img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github" alt="GitHub"></a>
+</td>
+<td align="center" width="33%">
+<img src="https://github.com/bimesh637.png" width="120" style="border-radius: 50%; border: 3px solid #2196F3;">
+<br>
+<b>Bimesh</b>
+<br>
+<sub>Developer</sub>
+<br><br>
+<a href="https://github.com/bimesh637"><img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github" alt="GitHub"></a>
+</td>
+<td align="center" width="33%">
+<img src="https://github.com/virajViduranga.png" width="120" style="border-radius: 50%; border: 3px solid #FF9800;">
+<br>
+<b>Viraj Viduranga</b>
+<br>
+<sub>Developer</sub>
+<br><br>
+<a href="https://github.com/virajViduranga"><img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github" alt="GitHub"></a>
+</td>
+</tr>
+</table>
 
-### **Kosala Daneshwara Athapaththu**
-
-🎓 Higher National Diploma in Software Engineering @ NIBM  
-📍 Colombo, Sri Lanka
-
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github)](https://github.com/kosaladathapththu)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/kosaladathapththu)
-[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/kosaladathapththu)
-[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:kosalaathapaththu1234@gmail.com)
+🎓 **Higher National Diploma in Software Engineering @ NIBM**  
+📍 **Colombo, Sri Lanka**
 
 </div>
 
@@ -345,7 +368,7 @@ If you find this project helpful, please consider giving it a ⭐ on GitHub!
 
 <br>
 
-**Made with ❤️ by [Kosala D. Athapaththu](https://github.com/kosaladathapththu)**
+**Made with ❤️ by the PFMS Team**
 
 *"Manage your money smartly, securely, and simply."*
 
