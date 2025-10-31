@@ -75,6 +75,22 @@ CREATE TABLE IF NOT EXISTS TRANSACTIONS_LOCAL (
   FOREIGN KEY(account_local_id)  REFERENCES ACCOUNTS_LOCAL(local_account_id),
   FOREIGN KEY(category_local_id) REFERENCES CATEGORIES_LOCAL(local_category_id)
 );
+
+-- Budgets --------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS budgets (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+name TEXT NOT NULL,
+period_yyyymm TEXT NOT NULL CHECK (length(period_yyyymm)=7), -- e.g., 2025-11
+scope TEXT NOT NULL CHECK (scope IN ('ALL','ACCOUNT','CATEGORY')),
+scope_id INTEGER NULL, -- when scope='ACCOUNT' -> accounts.id, 'CATEGORY' -> categories.id
+amount REAL NOT NULL CHECK (amount > 0),
+created_at TEXT NOT NULL DEFAULT (datetime('now')),
+updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_budgets_user_period ON budgets(user_id, period_yyyymm);
+CREATE INDEX IF NOT EXISTS idx_budgets_scope ON budgets(scope, scope_id);
+
 ");
 
 // Seed minimal demo data (optional)
