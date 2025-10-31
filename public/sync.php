@@ -40,6 +40,7 @@ $msg = $_GET['msg'] ?? '';
     <meta charset="utf-8">
     <title>Sync Center</title>
     <link rel="stylesheet" href="<?= APP_BASE ?>/app/sync/sync.css">
+    <link rel="stylesheet" href="sync.css">
 </head>
 <body>
 <h2>Sync Center 🔁</h2>
