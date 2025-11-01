@@ -7,19 +7,24 @@ $pdo = sqlite();
 $uid = (int)($_SESSION['uid'] ?? 0);
 
 $stmt = $pdo->prepare("
-  SELECT local_account_id, account_name, account_type, currency_code, opening_balance, is_active, created_at, updated_at
-  FROM ACCOUNTS_LOCAL
+  SELECT local_account_id, account_name, account_type, currency_code,
+         current_balance, is_active, created_at, updated_at
+  FROM V_ACCOUNT_BALANCES
   WHERE user_local_id = ?
   ORDER BY is_active DESC, created_at DESC
 ");
 $stmt->execute([$uid]);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
 // Calculate statistics
 $total_accounts = count($rows);
 $active_accounts = count(array_filter($rows, fn($r) => $r['is_active']));
 $inactive_accounts = $total_accounts - $active_accounts;
-$total_balance = array_sum(array_column($rows, 'opening_balance'));
+
+$total_balance = array_sum(array_map(fn($r) => (float)$r['current_balance'], $rows));
+
+
 
 // Group by account type
 $type_data = [];
@@ -29,7 +34,7 @@ foreach ($rows as $r) {
         $type_data[$type] = ['count' => 0, 'balance' => 0];
     }
     $type_data[$type]['count']++;
-    $type_data[$type]['balance'] += (float)$r['opening_balance'];
+    $type_data[$type]['balance'] += (float)$r['current_balance'];
 }
 
 // Group by currency
@@ -40,8 +45,9 @@ foreach ($rows as $r) {
         $currency_data[$curr] = ['count' => 0, 'balance' => 0];
     }
     $currency_data[$curr]['count']++;
-    $currency_data[$curr]['balance'] += (float)$r['opening_balance'];
+    $currency_data[$curr]['balance'] += (float)$r['current_balance'];
 }
+
 
 // Recent activity (last 5 accounts)
 $recent = array_slice($rows, 0, 5);
@@ -284,8 +290,9 @@ $recent = array_slice($rows, 0, 5);
               </span>
             </div>
             <div class="account-balance">
-              <span class="balance-label">Opening Balance</span>
-              <span class="balance-amount"><?= number_format((float)$r['opening_balance'], 2) ?></span>
+              <span class="balance-label">Current Balance</span>
+              <span class="balance-amount"><?= number_format((float)$r['current_balance'], 2) ?></span>
+
             </div>
           </div>
           

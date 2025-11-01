@@ -93,6 +93,35 @@ CREATE INDEX IF NOT EXISTS idx_budgets_scope ON budgets(scope, scope_id);
 
 ");
 
+// Create live balance view (option A)
+$pdo->exec("
+CREATE INDEX IF NOT EXISTS idx_txn_user_acc ON TRANSACTIONS_LOCAL(user_local_id, account_local_id);
+CREATE INDEX IF NOT EXISTS idx_txn_type ON TRANSACTIONS_LOCAL(txn_type);
+
+CREATE VIEW IF NOT EXISTS V_ACCOUNT_BALANCES AS
+SELECT
+  a.local_account_id,
+  a.user_local_id,
+  a.account_name,
+  a.account_type,
+  a.currency_code,
+  a.opening_balance
+    + COALESCE(SUM(CASE
+        WHEN t.txn_type='INCOME'  THEN t.amount
+        WHEN t.txn_type='EXPENSE' THEN -t.amount
+        ELSE 0
+      END), 0) AS current_balance,
+  a.is_active,
+  a.created_at,
+  a.updated_at
+FROM ACCOUNTS_LOCAL a
+LEFT JOIN TRANSACTIONS_LOCAL t
+  ON t.account_local_id = a.local_account_id
+ AND t.user_local_id     = a.user_local_id
+GROUP BY a.local_account_id;
+");
+
+
 // Seed minimal demo data (optional)
 $now = date('Y-m-d H:i:s');
 
