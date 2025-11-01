@@ -102,12 +102,12 @@ $cat_breakdown = $pdo->prepare("
 $cat_breakdown->execute([$uid]);
 $top_categories = $cat_breakdown->fetchAll(PDO::FETCH_ASSOC);
 
-// Account balances
+// ✅ Account balances (use live view)
 $acc_balances = $pdo->prepare("
-  SELECT account_name, opening_balance, account_type
-  FROM ACCOUNTS_LOCAL
+  SELECT account_name, current_balance, account_type
+  FROM V_ACCOUNT_BALANCES
   WHERE user_local_id = ? AND is_active = 1
-  ORDER BY opening_balance DESC
+  ORDER BY current_balance DESC
   LIMIT 5
 ");
 $acc_balances->execute([$uid]);
@@ -362,7 +362,7 @@ $accounts = $acc_balances->fetchAll(PDO::FETCH_ASSOC);
       </div>
       <?php endif; ?>
 
-      <!-- Account Balances -->
+      <!-- ✅ Account Balances (live) -->
       <?php if (!empty($accounts)): ?>
       <div class="dashboard-card">
         <div class="card-header">
@@ -376,13 +376,22 @@ $accounts = $acc_balances->fetchAll(PDO::FETCH_ASSOC);
             <?php foreach($accounts as $acc): ?>
             <div class="account-item">
               <div class="acc-icon">
-                <i class="fas fa-<?= $acc['account_type'] === 'Savings' ? 'piggy-bank' : ($acc['account_type'] === 'Credit' ? 'credit-card' : 'university') ?>"></i>
+                <?php
+                  // Map your account types to icons
+                  $icon = 'wallet';
+                  if ($acc['account_type'] === 'BANK')   $icon = 'building-columns';
+                  if ($acc['account_type'] === 'CARD')   $icon = 'credit-card';
+                  if ($acc['account_type'] === 'CASH')   $icon = 'money-bill-wave';
+                  if ($acc['account_type'] === 'MOBILE') $icon = 'mobile-screen';
+                ?>
+                <i class="fas fa-<?= $icon ?>"></i>
               </div>
               <div class="acc-details">
                 <span class="acc-name"><?= htmlspecialchars($acc['account_name']) ?></span>
                 <span class="acc-type"><?= htmlspecialchars($acc['account_type']) ?></span>
               </div>
-              <span class="acc-balance"><?= number_format((float)$acc['opening_balance'], 2) ?></span>
+              <!-- show current balance from the view -->
+              <span class="acc-balance"><?= number_format((float)$acc['current_balance'], 2) ?></span>
             </div>
             <?php endforeach; ?>
           </div>

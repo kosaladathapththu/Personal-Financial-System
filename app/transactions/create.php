@@ -36,15 +36,16 @@ $errors = [];
 $success = false;
 $typ = $_POST['txn_type'] ?? 'EXPENSE';
 
-// Get accounts
+// Get accounts (use live balances view)
 $accounts = $pdo->prepare("
-  SELECT local_account_id, account_name, account_type, opening_balance
-  FROM ACCOUNTS_LOCAL
+  SELECT local_account_id, account_name, account_type, current_balance
+  FROM V_ACCOUNT_BALANCES
   WHERE user_local_id = ? AND is_active = 1
   ORDER BY account_name
 ");
 $accounts->execute([$uid]);
 $accounts = $accounts->fetchAll(PDO::FETCH_ASSOC);
+
 
 // Get categories by type
 $catStmt = $pdo->prepare("
@@ -358,10 +359,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             <select id="account_local_id" name="account_local_id" required>
               <option value="0">— Select Account —</option>
               <?php foreach($accounts as $a): ?>
-                <option value="<?= (int)$a['local_account_id'] ?>" 
-                        <?= (($_POST['account_local_id'] ?? '') == $a['local_account_id']) ? 'selected' : '' ?>>
-                  <?= h($a['account_name']) ?> (<?= h($a['account_type']) ?>) - Balance: <?= number_format($a['opening_balance'], 2) ?>
-                </option>
+            <option value="<?= (int)$a['local_account_id'] ?>" 
+                    <?= (($_POST['account_local_id'] ?? '') == $a['local_account_id']) ? 'selected' : '' ?>>
+              <?= h($a['account_name']) ?> (<?= h($a['account_type']) ?>) - Balance: <?= number_format($a['current_balance'], 2) ?>
+            </option>
+
               <?php endforeach; ?>
             </select>
             <small class="field-hint">Which account is this transaction for?</small>
@@ -550,7 +552,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
                 <span class="acc-sum-name"><?= h($acc['account_name']) ?></span>
                 <span class="acc-sum-type"><?= h($acc['account_type']) ?></span>
               </div>
-              <span class="acc-sum-balance"><?= number_format($acc['opening_balance'], 2) ?></span>
+              <span class="acc-sum-balance"><?= number_format($acc['current_balance'], 2) ?></span>
             </div>
             <?php endforeach; ?>
           </div>
