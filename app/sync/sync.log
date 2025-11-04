@@ -1086,3 +1086,25 @@
 [2025-11-04 14:22:42] Repaired category map 'Refund' → 147
 [2025-11-04 14:22:42] Transactions synced: 1
 [2025-11-04 14:22:42] === SYNC DONE: A=1 C=1 T=1 ===
+[2025-11-04 16:19:19] 
+────────────────────────────────────────────
+[2025-11-04 16:19:19] SyncManager constructed (local_user_id=2)
+[2025-11-04 16:19:19] Local user already linked to server_user_id=1
+[2025-11-04 16:19:19] Linked server_user_id=1
+[2025-11-04 16:19:19] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 16:19:19] Accounts synced: 1
+[2025-11-04 16:19:19] Repaired account map 'Debit Card' → 13
+[2025-11-04 16:19:19] Categories synced: 1
+[2025-11-04 16:19:19] Repaired category map 'Shopping' → 148
+[2025-11-04 16:19:19] Transactions synced: 3
+[2025-11-04 16:19:19] === SYNC DONE: A=1 C=1 T=3 ===
+[2025-11-04 18:24:39] 
+────────────────────────────────────────────
+[2025-11-04 18:24:39] SyncManager constructed (local_user_id=2)
+[2025-11-04 18:24:39] Local user already linked to server_user_id=1
+[2025-11-04 18:24:39] Linked server_user_id=1
+[2025-11-04 18:24:39] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 18:24:39] Accounts synced: 0
+[2025-11-04 18:24:39] Categories synced: 0
+[2025-11-04 18:24:39] Transactions synced: 0
+[2025-11-04 18:24:39] === SYNC DONE: A=0 C=0 T=0 ===
