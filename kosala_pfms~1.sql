@@ -92,3 +92,20 @@ SELECT
 FROM dual;
 
 
+
+---------------------------------------------------------------------------------------------------------
+
+
+-- accounts available for this user
+SELECT server_account_id, account_name, account_type
+FROM ACCOUNTS_CLOUD
+WHERE user_server_id = 1
+ORDER BY server_account_id;
+
+-- categories available for this user
+SELECT server_category_id, parent_server_id, category_name, category_type
+FROM CATEGORIES_CLOUD
+WHERE user_server_id = 1
+ORDER BY server_category_id;
+
+
