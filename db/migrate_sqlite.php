@@ -147,3 +147,5 @@ VALUES
 $pdo->commit();
 
 echo "SQLite migration completed\n";
+
+

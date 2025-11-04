@@ -1,0 +1,1088 @@
+[2025-11-04 11:07:50] Created new cloud user ID=1
+[2025-11-04 11:07:50] === SYNC START for local_user_id=1, server_user_id=1 ===
+[2025-11-04 11:07:50] === SYNC DONE: A=2 C=2 T=0 ===
+[2025-11-04 12:06:27] 
+────────────────────────────────────────────
+[2025-11-04 12:06:27] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:06:27] Local user already linked to server_user_id=1
+[2025-11-04 12:06:27] Linked server_user_id=1
+[2025-11-04 12:06:27] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:06:27] Accounts synced: 0
+[2025-11-04 12:06:27] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:06:27] Categories synced: 0
+[2025-11-04 12:06:27] Transactions synced: 0
+[2025-11-04 12:06:27] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:08:29] 
+────────────────────────────────────────────
+[2025-11-04 12:08:29] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:08:29] Local user already linked to server_user_id=1
+[2025-11-04 12:08:29] Linked server_user_id=1
+[2025-11-04 12:08:29] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:08:29] Accounts synced: 0
+[2025-11-04 12:08:29] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:29] Categories synced: 0
+[2025-11-04 12:08:29] Transactions synced: 0
+[2025-11-04 12:08:29] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:08:36] 
+────────────────────────────────────────────
+[2025-11-04 12:08:36] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:08:36] Local user already linked to server_user_id=1
+[2025-11-04 12:08:36] Linked server_user_id=1
+[2025-11-04 12:08:36] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:08:36] Accounts synced: 0
+[2025-11-04 12:08:36] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:36] Categories synced: 0
+[2025-11-04 12:08:36] Transactions synced: 0
+[2025-11-04 12:08:36] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:08:38] 
+────────────────────────────────────────────
+[2025-11-04 12:08:38] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:08:38] Local user already linked to server_user_id=1
+[2025-11-04 12:08:38] Linked server_user_id=1
+[2025-11-04 12:08:38] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:08:38] Accounts synced: 0
+[2025-11-04 12:08:38] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:38] Categories synced: 0
+[2025-11-04 12:08:38] Transactions synced: 0
+[2025-11-04 12:08:38] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:08:39] 
+────────────────────────────────────────────
+[2025-11-04 12:08:39] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:08:39] Local user already linked to server_user_id=1
+[2025-11-04 12:08:39] Linked server_user_id=1
+[2025-11-04 12:08:39] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:08:39] Accounts synced: 0
+[2025-11-04 12:08:39] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:39] Categories synced: 0
+[2025-11-04 12:08:39] Transactions synced: 0
+[2025-11-04 12:08:39] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:08:40] 
+────────────────────────────────────────────
+[2025-11-04 12:08:40] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:08:40] Local user already linked to server_user_id=1
+[2025-11-04 12:08:40] Linked server_user_id=1
+[2025-11-04 12:08:40] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:08:40] Accounts synced: 0
+[2025-11-04 12:08:40] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:08:40] Categories synced: 0
+[2025-11-04 12:08:40] Transactions synced: 0
+[2025-11-04 12:08:40] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:10:12] 
+────────────────────────────────────────────
+[2025-11-04 12:10:12] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:10:12] Local user already linked to server_user_id=1
+[2025-11-04 12:10:12] Linked server_user_id=1
+[2025-11-04 12:10:12] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:10:12] Accounts synced: 0
+[2025-11-04 12:10:12] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:12] Categories synced: 0
+[2025-11-04 12:10:12] Transactions synced: 0
+[2025-11-04 12:10:12] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:10:14] 
+────────────────────────────────────────────
+[2025-11-04 12:10:14] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:10:14] Local user already linked to server_user_id=1
+[2025-11-04 12:10:14] Linked server_user_id=1
+[2025-11-04 12:10:14] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:10:14] Accounts synced: 0
+[2025-11-04 12:10:14] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:14] Categories synced: 0
+[2025-11-04 12:10:14] Transactions synced: 0
+[2025-11-04 12:10:14] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:10:15] 
+────────────────────────────────────────────
+[2025-11-04 12:10:15] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:10:15] Local user already linked to server_user_id=1
+[2025-11-04 12:10:15] Linked server_user_id=1
+[2025-11-04 12:10:15] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:10:15] Accounts synced: 0
+[2025-11-04 12:10:15] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:10:15] Categories synced: 0
+[2025-11-04 12:10:15] Transactions synced: 0
+[2025-11-04 12:10:15] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:23:59] 
+────────────────────────────────────────────
+[2025-11-04 12:23:59] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:23:59] Local user already linked to server_user_id=1
+[2025-11-04 12:23:59] Linked server_user_id=1
+[2025-11-04 12:23:59] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:23:59] Accounts synced: 0
+[2025-11-04 12:23:59] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:23:59] Skipped child 'CEB Bill' (local_id=4) → parent not synced.
+[2025-11-04 12:23:59] Skipped child 'Restaurant Income' (local_id=5) → parent not synced.
+[2025-11-04 12:23:59] Skipped child 'University Fee' (local_id=7) → parent not synced.
+[2025-11-04 12:23:59] Skipped child 'Property Income' (local_id=10) → parent not synced.
+[2025-11-04 12:23:59] Skipped child 'Groceries' (local_id=13) → parent not synced.
+[2025-11-04 12:23:59] Skipped child 'Transport' (local_id=14) → parent not synced.
+[2025-11-04 12:23:59] Skipped child 'Entertainment' (local_id=15) → parent not synced.
+[2025-11-04 12:23:59] Skipped child 'Healthcare' (local_id=16) → parent not synced.
+[2025-11-04 12:23:59] Skipped child 'Juice Bar' (local_id=11) → parent not synced.
+[2025-11-04 12:23:59] Categories synced: 0
+[2025-11-04 12:23:59] Transactions synced: 0
+[2025-11-04 12:23:59] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:24:01] 
+────────────────────────────────────────────
+[2025-11-04 12:24:01] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:24:01] Local user already linked to server_user_id=1
+[2025-11-04 12:24:01] Linked server_user_id=1
+[2025-11-04 12:24:01] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:24:01] Accounts synced: 0
+[2025-11-04 12:24:01] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:01] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:01] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:01] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:01] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:01] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:01] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:01] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:02] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:02] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:02] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:02] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:02] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:02] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:02] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:02] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:24:02] Skipped child 'CEB Bill' (local_id=4) → parent not synced.
+[2025-11-04 12:24:02] Skipped child 'Restaurant Income' (local_id=5) → parent not synced.
+[2025-11-04 12:24:02] Skipped child 'University Fee' (local_id=7) → parent not synced.
+[2025-11-04 12:24:02] Skipped child 'Property Income' (local_id=10) → parent not synced.
+[2025-11-04 12:24:02] Skipped child 'Groceries' (local_id=13) → parent not synced.
+[2025-11-04 12:24:02] Skipped child 'Transport' (local_id=14) → parent not synced.
+[2025-11-04 12:24:02] Skipped child 'Entertainment' (local_id=15) → parent not synced.
+[2025-11-04 12:24:02] Skipped child 'Healthcare' (local_id=16) → parent not synced.
+[2025-11-04 12:24:02] Skipped child 'Juice Bar' (local_id=11) → parent not synced.
+[2025-11-04 12:24:02] Categories synced: 0
+[2025-11-04 12:24:02] Transactions synced: 0
+[2025-11-04 12:24:02] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:33:06] 
+────────────────────────────────────────────
+[2025-11-04 12:33:06] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:33:06] Local user already linked to server_user_id=1
+[2025-11-04 12:33:06] Linked server_user_id=1
+[2025-11-04 12:33:06] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:33:06] Accounts synced: 0
+[2025-11-04 12:33:06] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:33:06] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:33:06] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:33:06] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 12:33:06] Skipped child 'Juice Bar' (local_id=11) → parent not synced.
+[2025-11-04 12:33:06] Categories synced: 8
+[2025-11-04 12:33:06] ❌ Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_CAT) violated - parent key not found
+[2025-11-04 12:33:06] Txn error: Txn cac45819-3dbf-4000-b1d7-989debba8754: Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_CAT) violated - parent key not found
+[2025-11-04 12:33:06] Transactions synced: 0
+[2025-11-04 12:33:06] === SYNC DONE: A=0 C=8 T=0 ===
+[2025-11-04 12:33:08] 
+────────────────────────────────────────────
+[2025-11-04 12:33:08] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:33:08] Local user already linked to server_user_id=1
+[2025-11-04 12:33:08] Linked server_user_id=1
+[2025-11-04 12:33:08] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:33:08] Accounts synced: 0
+[2025-11-04 12:33:08] Categories synced: 9
+[2025-11-04 12:33:08] ❌ Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:08] Txn error: Txn cac45819-3dbf-4000-b1d7-989debba8754: Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:08] Transactions synced: 0
+[2025-11-04 12:33:08] === SYNC DONE: A=0 C=9 T=0 ===
+[2025-11-04 12:33:09] 
+────────────────────────────────────────────
+[2025-11-04 12:33:09] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:33:09] Local user already linked to server_user_id=1
+[2025-11-04 12:33:09] Linked server_user_id=1
+[2025-11-04 12:33:09] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:33:09] Accounts synced: 0
+[2025-11-04 12:33:09] Categories synced: 1
+[2025-11-04 12:33:09] ❌ Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:09] Txn error: Txn cac45819-3dbf-4000-b1d7-989debba8754: Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:09] Transactions synced: 0
+[2025-11-04 12:33:09] === SYNC DONE: A=0 C=1 T=0 ===
+[2025-11-04 12:33:15] 
+────────────────────────────────────────────
+[2025-11-04 12:33:15] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:33:15] Local user already linked to server_user_id=1
+[2025-11-04 12:33:15] Linked server_user_id=1
+[2025-11-04 12:33:15] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:33:15] Accounts synced: 0
+[2025-11-04 12:33:15] Categories synced: 0
+[2025-11-04 12:33:15] ❌ Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:15] Txn error: Txn cac45819-3dbf-4000-b1d7-989debba8754: Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:15] Transactions synced: 0
+[2025-11-04 12:33:15] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:33:16] 
+────────────────────────────────────────────
+[2025-11-04 12:33:16] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:33:16] Local user already linked to server_user_id=1
+[2025-11-04 12:33:16] Linked server_user_id=1
+[2025-11-04 12:33:16] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:33:16] Accounts synced: 0
+[2025-11-04 12:33:16] Categories synced: 0
+[2025-11-04 12:33:16] ❌ Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:16] Txn error: Txn cac45819-3dbf-4000-b1d7-989debba8754: Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:16] Transactions synced: 0
+[2025-11-04 12:33:16] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:33:29] 
+────────────────────────────────────────────
+[2025-11-04 12:33:29] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:33:29] Local user already linked to server_user_id=1
+[2025-11-04 12:33:29] Linked server_user_id=1
+[2025-11-04 12:33:29] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:33:29] Accounts synced: 0
+[2025-11-04 12:33:29] Categories synced: 0
+[2025-11-04 12:33:29] ❌ Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:29] Txn error: Txn cac45819-3dbf-4000-b1d7-989debba8754: Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:29] Transactions synced: 0
+[2025-11-04 12:33:29] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:33:29] 
+────────────────────────────────────────────
+[2025-11-04 12:33:29] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:33:29] Local user already linked to server_user_id=1
+[2025-11-04 12:33:29] Linked server_user_id=1
+[2025-11-04 12:33:29] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:33:29] Accounts synced: 0
+[2025-11-04 12:33:29] Categories synced: 0
+[2025-11-04 12:33:29] ❌ Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:29] Txn error: Txn cac45819-3dbf-4000-b1d7-989debba8754: Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:29] Transactions synced: 0
+[2025-11-04 12:33:29] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:33:30] 
+────────────────────────────────────────────
+[2025-11-04 12:33:30] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:33:30] Local user already linked to server_user_id=1
+[2025-11-04 12:33:30] Linked server_user_id=1
+[2025-11-04 12:33:30] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:33:30] Accounts synced: 0
+[2025-11-04 12:33:30] Categories synced: 0
+[2025-11-04 12:33:30] ❌ Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:30] Txn error: Txn cac45819-3dbf-4000-b1d7-989debba8754: Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:30] Transactions synced: 0
+[2025-11-04 12:33:30] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:33:30] 
+────────────────────────────────────────────
+[2025-11-04 12:33:30] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:33:30] Local user already linked to server_user_id=1
+[2025-11-04 12:33:30] Linked server_user_id=1
+[2025-11-04 12:33:30] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:33:30] Accounts synced: 0
+[2025-11-04 12:33:30] Categories synced: 0
+[2025-11-04 12:33:30] ❌ Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:30] Txn error: Txn cac45819-3dbf-4000-b1d7-989debba8754: Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:30] Transactions synced: 0
+[2025-11-04 12:33:30] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:33:31] 
+────────────────────────────────────────────
+[2025-11-04 12:33:31] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:33:31] Local user already linked to server_user_id=1
+[2025-11-04 12:33:31] Linked server_user_id=1
+[2025-11-04 12:33:31] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:33:31] Accounts synced: 0
+[2025-11-04 12:33:31] Categories synced: 0
+[2025-11-04 12:33:31] ❌ Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:31] Txn error: Txn cac45819-3dbf-4000-b1d7-989debba8754: Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 12:33:31] Transactions synced: 0
+[2025-11-04 12:33:31] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 12:51:13] 
+────────────────────────────────────────────
+[2025-11-04 12:51:13] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:51:13] Local user already linked to server_user_id=1
+[2025-11-04 12:51:13] Linked server_user_id=1
+[2025-11-04 12:51:13] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:51:13] Accounts synced: 0
+[2025-11-04 12:51:13] ❌ Insert account :: ORA-01400: cannot insert NULL into ("KOSALA"."ACCOUNTS_CLOUD"."CURRENCY_CODE")
+[2025-11-04 12:51:13] FATAL: Insert account :: ORA-01400: cannot insert NULL into ("KOSALA"."ACCOUNTS_CLOUD"."CURRENCY_CODE")
+[2025-11-04 12:53:44] 
+────────────────────────────────────────────
+[2025-11-04 12:53:44] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:53:44] Local user already linked to server_user_id=1
+[2025-11-04 12:53:44] Linked server_user_id=1
+[2025-11-04 12:53:44] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:53:44] Accounts synced: 0
+[2025-11-04 12:53:44] ❌ Insert account :: ORA-01400: cannot insert NULL into ("KOSALA"."ACCOUNTS_CLOUD"."CURRENCY_CODE")
+[2025-11-04 12:53:44] FATAL: Insert account :: ORA-01400: cannot insert NULL into ("KOSALA"."ACCOUNTS_CLOUD"."CURRENCY_CODE")
+[2025-11-04 12:55:37] 
+────────────────────────────────────────────
+[2025-11-04 12:55:37] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:55:37] Local user already linked to server_user_id=1
+[2025-11-04 12:55:37] Linked server_user_id=1
+[2025-11-04 12:55:37] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:55:37] Accounts synced: 0
+[2025-11-04 12:55:37] ❌ Insert account :: ORA-01400: cannot insert NULL into ("KOSALA"."ACCOUNTS_CLOUD"."CURRENCY_CODE")
+[2025-11-04 12:55:37] FATAL: Insert account :: ORA-01400: cannot insert NULL into ("KOSALA"."ACCOUNTS_CLOUD"."CURRENCY_CODE")
+[2025-11-04 12:55:38] 
+────────────────────────────────────────────
+[2025-11-04 12:55:38] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:55:38] Local user already linked to server_user_id=1
+[2025-11-04 12:55:38] Linked server_user_id=1
+[2025-11-04 12:55:38] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:55:38] Accounts synced: 0
+[2025-11-04 12:55:38] ❌ Insert account :: ORA-01400: cannot insert NULL into ("KOSALA"."ACCOUNTS_CLOUD"."CURRENCY_CODE")
+[2025-11-04 12:55:38] FATAL: Insert account :: ORA-01400: cannot insert NULL into ("KOSALA"."ACCOUNTS_CLOUD"."CURRENCY_CODE")
+[2025-11-04 12:55:44] 
+────────────────────────────────────────────
+[2025-11-04 12:55:44] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:55:44] Local user already linked to server_user_id=1
+[2025-11-04 12:55:44] Linked server_user_id=1
+[2025-11-04 12:55:44] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:55:44] Accounts synced: 0
+[2025-11-04 12:55:44] ❌ Insert account :: ORA-01400: cannot insert NULL into ("KOSALA"."ACCOUNTS_CLOUD"."CURRENCY_CODE")
+[2025-11-04 12:55:44] FATAL: Insert account :: ORA-01400: cannot insert NULL into ("KOSALA"."ACCOUNTS_CLOUD"."CURRENCY_CODE")
+[2025-11-04 12:55:45] 
+────────────────────────────────────────────
+[2025-11-04 12:55:45] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:55:45] Local user already linked to server_user_id=1
+[2025-11-04 12:55:45] Linked server_user_id=1
+[2025-11-04 12:55:45] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:55:45] Accounts synced: 0
+[2025-11-04 12:55:45] ❌ Insert account :: ORA-01400: cannot insert NULL into ("KOSALA"."ACCOUNTS_CLOUD"."CURRENCY_CODE")
+[2025-11-04 12:55:45] FATAL: Insert account :: ORA-01400: cannot insert NULL into ("KOSALA"."ACCOUNTS_CLOUD"."CURRENCY_CODE")
+[2025-11-04 12:59:51] 
+────────────────────────────────────────────
+[2025-11-04 12:59:51] SyncManager constructed (local_user_id=2)
+[2025-11-04 12:59:51] Local user already linked to server_user_id=1
+[2025-11-04 12:59:51] Linked server_user_id=1
+[2025-11-04 12:59:51] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 12:59:51] Accounts synced: 0
+[2025-11-04 12:59:51] ❌ Insert account :: ORA-01008: not all variables bound
+[2025-11-04 12:59:51] FATAL: Insert account :: ORA-01008: not all variables bound
+[2025-11-04 13:09:01] 
+────────────────────────────────────────────
+[2025-11-04 13:09:01] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:09:01] Local user already linked to server_user_id=1
+[2025-11-04 13:09:01] Linked server_user_id=1
+[2025-11-04 13:09:01] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:09:01] Accounts synced: 0
+[2025-11-04 13:18:13] 
+────────────────────────────────────────────
+[2025-11-04 13:18:13] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:18:13] Local user already linked to server_user_id=1
+[2025-11-04 13:18:13] Linked server_user_id=1
+[2025-11-04 13:18:13] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:18:13] Accounts synced: 0
+[2025-11-04 13:18:13] Created & mapped account 'Cash wallet' → 0
+[2025-11-04 13:18:13] Created & mapped account 'Credit Card' → 0
+[2025-11-04 13:18:13] Created & mapped account 'Bank Account' → 0
+[2025-11-04 13:18:13] Categories synced: 0
+[2025-11-04 13:18:13] ❌ Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 13:18:13] Txn error: Txn cac45819-3dbf-4000-b1d7-989debba8754: Insert txn :: ORA-02291: integrity constraint (KOSALA.FK_TXN_ACC) violated - parent key not found
+[2025-11-04 13:18:13] Transactions synced: 0
+[2025-11-04 13:18:13] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:18:20] 
+────────────────────────────────────────────
+[2025-11-04 13:18:20] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:18:20] Local user already linked to server_user_id=1
+[2025-11-04 13:18:20] Linked server_user_id=1
+[2025-11-04 13:18:20] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:18:20] Accounts synced: 0
+[2025-11-04 13:18:20] Repaired account map 'Cash wallet' → 9
+[2025-11-04 13:18:20] Repaired account map 'Credit Card' → 10
+[2025-11-04 13:18:20] Repaired account map 'Bank Account' → 11
+[2025-11-04 13:18:20] Categories synced: 0
+[2025-11-04 13:18:20] Transactions synced: 1
+[2025-11-04 13:18:20] === SYNC DONE: A=0 C=0 T=1 ===
+[2025-11-04 13:18:21] 
+────────────────────────────────────────────
+[2025-11-04 13:18:21] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:18:21] Local user already linked to server_user_id=1
+[2025-11-04 13:18:21] Linked server_user_id=1
+[2025-11-04 13:18:21] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:18:21] Accounts synced: 0
+[2025-11-04 13:18:21] Categories synced: 0
+[2025-11-04 13:18:21] Transactions synced: 0
+[2025-11-04 13:18:21] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:18:23] 
+────────────────────────────────────────────
+[2025-11-04 13:18:23] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:18:23] Local user already linked to server_user_id=1
+[2025-11-04 13:18:23] Linked server_user_id=1
+[2025-11-04 13:18:23] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:18:23] Accounts synced: 0
+[2025-11-04 13:18:23] Categories synced: 0
+[2025-11-04 13:18:23] Transactions synced: 0
+[2025-11-04 13:18:23] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:18:25] 
+────────────────────────────────────────────
+[2025-11-04 13:18:25] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:18:25] Local user already linked to server_user_id=1
+[2025-11-04 13:18:25] Linked server_user_id=1
+[2025-11-04 13:18:25] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:18:25] Accounts synced: 0
+[2025-11-04 13:18:25] Categories synced: 0
+[2025-11-04 13:18:25] Transactions synced: 0
+[2025-11-04 13:18:25] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:18:33] 
+────────────────────────────────────────────
+[2025-11-04 13:18:33] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:18:33] Local user already linked to server_user_id=1
+[2025-11-04 13:18:33] Linked server_user_id=1
+[2025-11-04 13:18:33] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:18:33] Accounts synced: 0
+[2025-11-04 13:18:33] Categories synced: 0
+[2025-11-04 13:18:33] Transactions synced: 0
+[2025-11-04 13:18:33] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:21:09] 
+────────────────────────────────────────────
+[2025-11-04 13:21:09] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:21:09] Local user already linked to server_user_id=1
+[2025-11-04 13:21:09] Linked server_user_id=1
+[2025-11-04 13:21:09] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:21:09] Accounts synced: 0
+[2025-11-04 13:21:09] Categories synced: 0
+[2025-11-04 13:21:09] Transactions synced: 1
+[2025-11-04 13:21:09] === SYNC DONE: A=0 C=0 T=1 ===
+[2025-11-04 13:24:14] 
+────────────────────────────────────────────
+[2025-11-04 13:24:14] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:14] Local user already linked to server_user_id=1
+[2025-11-04 13:24:14] Linked server_user_id=1
+[2025-11-04 13:24:14] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:14] Accounts synced: 0
+[2025-11-04 13:24:14] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:14] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:14] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:14] Categories synced: 0
+[2025-11-04 13:24:14] Transactions synced: 0
+[2025-11-04 13:24:14] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:24:30] 
+────────────────────────────────────────────
+[2025-11-04 13:24:30] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:30] Local user already linked to server_user_id=1
+[2025-11-04 13:24:30] Linked server_user_id=1
+[2025-11-04 13:24:30] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:30] Accounts synced: 0
+[2025-11-04 13:24:30] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:30] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:30] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:30] Categories synced: 0
+[2025-11-04 13:24:30] Transactions synced: 0
+[2025-11-04 13:24:30] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:24:33] 
+────────────────────────────────────────────
+[2025-11-04 13:24:33] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:33] Local user already linked to server_user_id=1
+[2025-11-04 13:24:33] Linked server_user_id=1
+[2025-11-04 13:24:33] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:33] Accounts synced: 0
+[2025-11-04 13:24:33] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:33] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:33] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:33] Categories synced: 0
+[2025-11-04 13:24:33] Transactions synced: 0
+[2025-11-04 13:24:33] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:24:35] 
+────────────────────────────────────────────
+[2025-11-04 13:24:35] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:35] Local user already linked to server_user_id=1
+[2025-11-04 13:24:35] Linked server_user_id=1
+[2025-11-04 13:24:35] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:35] Accounts synced: 0
+[2025-11-04 13:24:35] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:35] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:35] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:35] Categories synced: 0
+[2025-11-04 13:24:35] Transactions synced: 0
+[2025-11-04 13:24:35] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:24:36] 
+────────────────────────────────────────────
+[2025-11-04 13:24:36] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:36] Local user already linked to server_user_id=1
+[2025-11-04 13:24:36] Linked server_user_id=1
+[2025-11-04 13:24:36] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:36] Accounts synced: 0
+[2025-11-04 13:24:36] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:36] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:36] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:36] Categories synced: 0
+[2025-11-04 13:24:36] Transactions synced: 0
+[2025-11-04 13:24:36] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:24:37] 
+────────────────────────────────────────────
+[2025-11-04 13:24:37] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:37] Local user already linked to server_user_id=1
+[2025-11-04 13:24:37] Linked server_user_id=1
+[2025-11-04 13:24:37] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:37] Accounts synced: 0
+[2025-11-04 13:24:37] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:37] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:37] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:37] Categories synced: 0
+[2025-11-04 13:24:37] Transactions synced: 0
+[2025-11-04 13:24:37] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:24:45] 
+────────────────────────────────────────────
+[2025-11-04 13:24:45] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:45] Local user already linked to server_user_id=1
+[2025-11-04 13:24:45] Linked server_user_id=1
+[2025-11-04 13:24:45] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:45] Accounts synced: 0
+[2025-11-04 13:24:45] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:45] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:45] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:45] Categories synced: 0
+[2025-11-04 13:24:45] Transactions synced: 0
+[2025-11-04 13:24:45] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:24:46] 
+────────────────────────────────────────────
+[2025-11-04 13:24:46] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:46] Local user already linked to server_user_id=1
+[2025-11-04 13:24:46] Linked server_user_id=1
+[2025-11-04 13:24:46] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:46] Accounts synced: 0
+[2025-11-04 13:24:46] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:46] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:46] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:46] Categories synced: 0
+[2025-11-04 13:24:46] Transactions synced: 0
+[2025-11-04 13:24:46] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:24:47] 
+────────────────────────────────────────────
+[2025-11-04 13:24:47] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:47] Local user already linked to server_user_id=1
+[2025-11-04 13:24:47] Linked server_user_id=1
+[2025-11-04 13:24:47] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:47] Accounts synced: 0
+[2025-11-04 13:24:47] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:47] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:47] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:47] Categories synced: 0
+[2025-11-04 13:24:47] Transactions synced: 0
+[2025-11-04 13:24:47] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:24:48] 
+────────────────────────────────────────────
+[2025-11-04 13:24:48] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:48] Local user already linked to server_user_id=1
+[2025-11-04 13:24:48] Linked server_user_id=1
+[2025-11-04 13:24:48] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:48] Accounts synced: 0
+[2025-11-04 13:24:48] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:48] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:48] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:48] Categories synced: 0
+[2025-11-04 13:24:48] Transactions synced: 0
+[2025-11-04 13:24:48] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:24:48] 
+────────────────────────────────────────────
+[2025-11-04 13:24:48] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:48] Local user already linked to server_user_id=1
+[2025-11-04 13:24:48] Linked server_user_id=1
+[2025-11-04 13:24:48] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:48] Accounts synced: 0
+[2025-11-04 13:24:48] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:48] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:48] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:48] Categories synced: 0
+[2025-11-04 13:24:48] Transactions synced: 0
+[2025-11-04 13:24:48] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:24:49] 
+────────────────────────────────────────────
+[2025-11-04 13:24:49] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:49] Local user already linked to server_user_id=1
+[2025-11-04 13:24:49] Linked server_user_id=1
+[2025-11-04 13:24:49] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:49] Accounts synced: 0
+[2025-11-04 13:24:49] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:49] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:49] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:49] Categories synced: 0
+[2025-11-04 13:24:49] Transactions synced: 0
+[2025-11-04 13:24:49] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:24:49] 
+────────────────────────────────────────────
+[2025-11-04 13:24:49] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:49] Local user already linked to server_user_id=1
+[2025-11-04 13:24:49] Linked server_user_id=1
+[2025-11-04 13:24:49] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:49] Accounts synced: 0
+[2025-11-04 13:24:49] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:49] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:49] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:49] Categories synced: 0
+[2025-11-04 13:24:49] Transactions synced: 0
+[2025-11-04 13:24:49] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:24:50] 
+────────────────────────────────────────────
+[2025-11-04 13:24:50] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:24:50] Local user already linked to server_user_id=1
+[2025-11-04 13:24:50] Linked server_user_id=1
+[2025-11-04 13:24:50] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:24:50] Accounts synced: 0
+[2025-11-04 13:24:50] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:50] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:24:50] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:24:50] Categories synced: 0
+[2025-11-04 13:24:50] Transactions synced: 0
+[2025-11-04 13:24:50] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:25:00] 
+────────────────────────────────────────────
+[2025-11-04 13:25:00] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:25:00] Local user already linked to server_user_id=1
+[2025-11-04 13:25:00] Linked server_user_id=1
+[2025-11-04 13:25:00] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:25:00] Accounts synced: 0
+[2025-11-04 13:25:00] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:25:00] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:25:00] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:25:00] Categories synced: 0
+[2025-11-04 13:25:00] Transactions synced: 0
+[2025-11-04 13:25:00] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:19] 
+────────────────────────────────────────────
+[2025-11-04 13:26:19] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:19] Local user already linked to server_user_id=1
+[2025-11-04 13:26:19] Linked server_user_id=1
+[2025-11-04 13:26:19] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:19] Accounts synced: 0
+[2025-11-04 13:26:19] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:19] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:19] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:19] Categories synced: 0
+[2025-11-04 13:26:19] Transactions synced: 0
+[2025-11-04 13:26:19] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:22] 
+────────────────────────────────────────────
+[2025-11-04 13:26:22] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:22] Local user already linked to server_user_id=1
+[2025-11-04 13:26:22] Linked server_user_id=1
+[2025-11-04 13:26:22] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:22] Accounts synced: 0
+[2025-11-04 13:26:22] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:22] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:22] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:22] Categories synced: 0
+[2025-11-04 13:26:22] Transactions synced: 0
+[2025-11-04 13:26:22] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:23] 
+────────────────────────────────────────────
+[2025-11-04 13:26:23] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:23] Local user already linked to server_user_id=1
+[2025-11-04 13:26:23] Linked server_user_id=1
+[2025-11-04 13:26:23] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:23] Accounts synced: 0
+[2025-11-04 13:26:23] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:23] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:23] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:23] Categories synced: 0
+[2025-11-04 13:26:23] Transactions synced: 0
+[2025-11-04 13:26:23] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:27] 
+────────────────────────────────────────────
+[2025-11-04 13:26:27] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:27] Local user already linked to server_user_id=1
+[2025-11-04 13:26:27] Linked server_user_id=1
+[2025-11-04 13:26:27] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:27] Accounts synced: 0
+[2025-11-04 13:26:27] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:27] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:27] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:27] Categories synced: 0
+[2025-11-04 13:26:27] Transactions synced: 0
+[2025-11-04 13:26:27] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:28] 
+────────────────────────────────────────────
+[2025-11-04 13:26:28] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:28] Local user already linked to server_user_id=1
+[2025-11-04 13:26:28] Linked server_user_id=1
+[2025-11-04 13:26:28] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:28] Accounts synced: 0
+[2025-11-04 13:26:28] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:28] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:28] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:28] Categories synced: 0
+[2025-11-04 13:26:28] Transactions synced: 0
+[2025-11-04 13:26:28] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:29] 
+────────────────────────────────────────────
+[2025-11-04 13:26:29] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:29] Local user already linked to server_user_id=1
+[2025-11-04 13:26:29] Linked server_user_id=1
+[2025-11-04 13:26:29] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:29] Accounts synced: 0
+[2025-11-04 13:26:29] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:29] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:29] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:29] Categories synced: 0
+[2025-11-04 13:26:29] Transactions synced: 0
+[2025-11-04 13:26:29] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:30] 
+────────────────────────────────────────────
+[2025-11-04 13:26:30] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:30] Local user already linked to server_user_id=1
+[2025-11-04 13:26:30] Linked server_user_id=1
+[2025-11-04 13:26:30] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:30] Accounts synced: 0
+[2025-11-04 13:26:30] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:30] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:30] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:30] Categories synced: 0
+[2025-11-04 13:26:30] Transactions synced: 0
+[2025-11-04 13:26:30] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:30] 
+────────────────────────────────────────────
+[2025-11-04 13:26:30] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:30] Local user already linked to server_user_id=1
+[2025-11-04 13:26:30] Linked server_user_id=1
+[2025-11-04 13:26:30] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:30] Accounts synced: 0
+[2025-11-04 13:26:30] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:30] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:30] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:30] Categories synced: 0
+[2025-11-04 13:26:30] Transactions synced: 0
+[2025-11-04 13:26:30] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:30] 
+────────────────────────────────────────────
+[2025-11-04 13:26:30] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:30] Local user already linked to server_user_id=1
+[2025-11-04 13:26:30] Linked server_user_id=1
+[2025-11-04 13:26:30] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:30] Accounts synced: 0
+[2025-11-04 13:26:30] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:30] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:30] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:30] Categories synced: 0
+[2025-11-04 13:26:30] Transactions synced: 0
+[2025-11-04 13:26:30] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:31] 
+────────────────────────────────────────────
+[2025-11-04 13:26:31] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:31] Local user already linked to server_user_id=1
+[2025-11-04 13:26:31] Linked server_user_id=1
+[2025-11-04 13:26:31] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:31] Accounts synced: 0
+[2025-11-04 13:26:31] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:31] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:31] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:31] Categories synced: 0
+[2025-11-04 13:26:31] Transactions synced: 0
+[2025-11-04 13:26:31] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:31] 
+────────────────────────────────────────────
+[2025-11-04 13:26:31] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:31] Local user already linked to server_user_id=1
+[2025-11-04 13:26:31] Linked server_user_id=1
+[2025-11-04 13:26:31] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:31] Accounts synced: 0
+[2025-11-04 13:26:31] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:31] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:31] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:31] Categories synced: 0
+[2025-11-04 13:26:31] Transactions synced: 0
+[2025-11-04 13:26:31] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:31] 
+────────────────────────────────────────────
+[2025-11-04 13:26:31] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:31] Local user already linked to server_user_id=1
+[2025-11-04 13:26:31] Linked server_user_id=1
+[2025-11-04 13:26:31] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:31] Accounts synced: 0
+[2025-11-04 13:26:31] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:31] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:31] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:31] Categories synced: 0
+[2025-11-04 13:26:31] Transactions synced: 0
+[2025-11-04 13:26:31] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:31] 
+────────────────────────────────────────────
+[2025-11-04 13:26:31] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:31] Local user already linked to server_user_id=1
+[2025-11-04 13:26:31] Linked server_user_id=1
+[2025-11-04 13:26:31] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:31] Accounts synced: 0
+[2025-11-04 13:26:31] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:31] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:31] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:31] Categories synced: 0
+[2025-11-04 13:26:31] Transactions synced: 0
+[2025-11-04 13:26:31] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:31] 
+────────────────────────────────────────────
+[2025-11-04 13:26:31] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:31] Local user already linked to server_user_id=1
+[2025-11-04 13:26:31] Linked server_user_id=1
+[2025-11-04 13:26:31] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:31] Accounts synced: 0
+[2025-11-04 13:26:31] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:31] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:31] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:31] Categories synced: 0
+[2025-11-04 13:26:31] Transactions synced: 0
+[2025-11-04 13:26:31] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:31] 
+────────────────────────────────────────────
+[2025-11-04 13:26:31] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:31] Local user already linked to server_user_id=1
+[2025-11-04 13:26:31] Linked server_user_id=1
+[2025-11-04 13:26:31] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:31] Accounts synced: 0
+[2025-11-04 13:26:31] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:31] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:31] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:31] Categories synced: 0
+[2025-11-04 13:26:32] Transactions synced: 0
+[2025-11-04 13:26:32] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:32] 
+────────────────────────────────────────────
+[2025-11-04 13:26:32] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:32] Local user already linked to server_user_id=1
+[2025-11-04 13:26:32] Linked server_user_id=1
+[2025-11-04 13:26:32] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:32] Accounts synced: 0
+[2025-11-04 13:26:32] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:32] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:32] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:32] Categories synced: 0
+[2025-11-04 13:26:32] Transactions synced: 0
+[2025-11-04 13:26:32] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:32] 
+────────────────────────────────────────────
+[2025-11-04 13:26:32] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:32] Local user already linked to server_user_id=1
+[2025-11-04 13:26:32] Linked server_user_id=1
+[2025-11-04 13:26:32] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:32] Accounts synced: 0
+[2025-11-04 13:26:32] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:32] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:32] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:32] Categories synced: 0
+[2025-11-04 13:26:32] Transactions synced: 0
+[2025-11-04 13:26:32] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:26:41] 
+────────────────────────────────────────────
+[2025-11-04 13:26:41] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:26:41] Local user already linked to server_user_id=1
+[2025-11-04 13:26:41] Linked server_user_id=1
+[2025-11-04 13:26:41] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:26:41] Accounts synced: 0
+[2025-11-04 13:26:41] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:41] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:26:41] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:26:41] Categories synced: 0
+[2025-11-04 13:26:41] Transactions synced: 0
+[2025-11-04 13:26:41] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:27:40] 
+────────────────────────────────────────────
+[2025-11-04 13:27:40] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:27:40] Local user already linked to server_user_id=1
+[2025-11-04 13:27:40] Linked server_user_id=1
+[2025-11-04 13:27:40] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:27:40] Accounts synced: 0
+[2025-11-04 13:27:40] ❌ Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:27:40] Category error: Insert category :: ORA-02291: integrity constraint (KOSALA.FK_CAT_PARENT) violated - parent key not found
+[2025-11-04 13:27:40] Skipped child 'Boarding Fees' (local_id=17) → parent not synced.
+[2025-11-04 13:27:40] Categories synced: 0
+[2025-11-04 13:27:40] Transactions synced: 0
+[2025-11-04 13:27:40] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-04 13:30:19] 
+────────────────────────────────────────────
+[2025-11-04 13:30:19] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:30:19] Local user already linked to server_user_id=1
+[2025-11-04 13:30:19] Linked server_user_id=1
+[2025-11-04 13:30:19] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:30:19] Accounts synced: 0
+[2025-11-04 13:30:19] Categories synced: 1
+[2025-11-04 13:30:19] Repaired category map 'Boarding Fees' → 145
+[2025-11-04 13:30:19] Transactions synced: 1
+[2025-11-04 13:30:19] === SYNC DONE: A=0 C=1 T=1 ===
+[2025-11-04 13:39:31] 
+────────────────────────────────────────────
+[2025-11-04 13:39:31] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:39:31] Local user already linked to server_user_id=1
+[2025-11-04 13:39:31] Linked server_user_id=1
+[2025-11-04 13:39:31] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:39:31] Accounts synced: 0
+[2025-11-04 13:48:16] 
+────────────────────────────────────────────
+[2025-11-04 13:48:16] SyncManager constructed (local_user_id=2)
+[2025-11-04 13:48:16] Local user already linked to server_user_id=1
+[2025-11-04 13:48:16] Linked server_user_id=1
+[2025-11-04 13:48:16] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 13:48:16] Accounts synced: 0
+[2025-11-04 14:03:15] 
+────────────────────────────────────────────
+[2025-11-04 14:03:15] SyncManager constructed (local_user_id=2)
+[2025-11-04 14:03:15] Local user already linked to server_user_id=1
+[2025-11-04 14:03:15] Linked server_user_id=1
+[2025-11-04 14:03:15] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 14:03:15] Accounts synced: 0
+[2025-11-04 14:03:15] Categories synced: 1
+[2025-11-04 14:03:15] Repaired category map 'Bank Loan' → 146
+[2025-11-04 14:03:15] Transactions synced: 1
+[2025-11-04 14:03:15] === SYNC DONE: A=0 C=1 T=1 ===
+[2025-11-04 14:22:42] 
+────────────────────────────────────────────
+[2025-11-04 14:22:42] SyncManager constructed (local_user_id=2)
+[2025-11-04 14:22:42] Local user already linked to server_user_id=1
+[2025-11-04 14:22:42] Linked server_user_id=1
+[2025-11-04 14:22:42] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-04 14:22:42] Accounts synced: 1
+[2025-11-04 14:22:42] Repaired account map 'Mobile wallet' → 12
+[2025-11-04 14:22:42] Categories synced: 1
+[2025-11-04 14:22:42] Repaired category map 'Refund' → 147
+[2025-11-04 14:22:42] Transactions synced: 1
+[2025-11-04 14:22:42] === SYNC DONE: A=1 C=1 T=1 ===
