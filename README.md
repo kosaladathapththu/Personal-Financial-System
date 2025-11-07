@@ -315,7 +315,7 @@ cd pfms
 <a href="https://github.com/virajViduranga"><img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github" alt="GitHub"></a>
 </td>
 <td align="center" width="33%">
-<img src="https://github.com/virajViduranga.png" width="120" style="border-radius: 50%; border: 3px solid #FF9800;">
+<img src="https://github.com/DulminaShehan.png" width="120" style="border-radius: 50%; border: 3px solid #FF9800;">
 <br>
 <b>Dulmina Shehan</b>
 <br>
