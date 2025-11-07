@@ -317,7 +317,7 @@ cd pfms
 <td align="center" width="33%">
 <img src="https://github.com/DulminaShehan.png" width="120" style="border-radius: 50%; border: 3px solid #FF9800;">
 <br>
-<b>Dulmina Shehan</b>
+<b>Dulmina</b>
 <br>
 <sub>Developer</sub>
 <br><br>
