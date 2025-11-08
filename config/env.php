@@ -12,12 +12,18 @@ define('SQLITE_PATH', realpath(__DIR__ . '/../db/pfms.sqlite') ?: (__DIR__ . '/.
 /* ====== Oracle (PDB service) ====== */
 define('ORACLE_HOST',     'localhost');
 define('ORACLE_PORT',     '1521');
-define('ORACLE_SERVICE',  'XEPDB1');   // ✅ PDB service name
-define('ORACLE_SID',      '');         // keep empty when SERVICE used
+define('ORACLE_SERVICE',  'XEPDB1');   // PDB service name
+define('ORACLE_SID',      '');         // leave empty when SERVICE used
 
-// 👉 Your schema where KOSALA_PFMS tables live
+// Your Oracle user/schema credentials (OWNER of *_CLOUD tables)
 define('ORACLE_USER',     'KOSALA');
-define('ORACLE_PASS',     'Plapytome');
+define('ORACLE_PASS',     'Playptome');
+
+// Charset
+define('ORACLE_CHARSET',  'AL32UTF8');
+
+// Default schema (used by SyncManager to qualify tables)
+define('ORACLE_CURRENT_SCHEMA', 'KOSALA');
 
 /* ====== Sync settings ====== */
 define('AUTO_SYNC_ENABLED', false);
