@@ -83,7 +83,8 @@ if ($serverUid > 0) {
 // -------------------- defaults --------------------
 $total_income   = 0.0;
 $total_expense  = 0.0;
-$net_balance    = 0.0;
+$net_balance    = 0.0; // txn-only
+$total_balance  = 0.0; // opening + income - expense across all active accounts
 $recent_transactions = [];
 $monthly_data = [];
 $top_categories = [];
@@ -91,7 +92,7 @@ $accounts = [];
 
 // -------------------- ORACLE path --------------------
 if ($use_oracle) {
-    // Summary
+    // Summary (txn totals)
     $sql = "
       SELECT
         NVL(SUM(CASE WHEN UPPER(txn_type)='INCOME'  THEN amount ELSE 0 END),0) AS total_income,
@@ -109,7 +110,7 @@ if ($use_oracle) {
         $net_balance   = $total_income - $total_expense;
     }
 
-    // Recent transactions (ensure string date)
+    // Recent transactions
     $sql = "
       SELECT
         t.txn_type,
@@ -189,9 +190,35 @@ if ($use_oracle) {
     oci_execute($st);
     while ($r = oci_fetch_assoc($st)) { $accounts[] = arr_keys_lower($r); }
 
+    // TOTAL BALANCE across ALL accounts (Opening + Income - Expense)
+    $sql = "
+      SELECT SUM(opening_balance + NVL(inc,0) - NVL(exp,0)) AS total_balance
+      FROM (
+        SELECT
+          a.server_account_id,
+          NVL(a.opening_balance,0) AS opening_balance,
+          SUM(CASE WHEN UPPER(t.txn_type)='INCOME'  THEN t.amount ELSE 0 END) AS inc,
+          SUM(CASE WHEN UPPER(t.txn_type)='EXPENSE' THEN t.amount ELSE 0 END) AS exp
+        FROM ACCOUNTS_CLOUD a
+        LEFT JOIN TRANSACTIONS_CLOUD t
+          ON t.account_server_id = a.server_account_id
+         AND t.user_server_id    = a.user_server_id
+        WHERE a.user_server_id = :P_UID
+          AND NVL(a.is_active,1) = 1
+        GROUP BY a.server_account_id, NVL(a.opening_balance,0)
+      )
+    ";
+    $st = oci_parse($oconn, $sql);
+    oci_bind_by_name($st, ':P_UID', $serverUid, -1, SQLT_INT);
+    oci_execute($st);
+    if ($r = oci_fetch_assoc($st)) {
+      $total_balance = (float)$r['TOTAL_BALANCE'];
+    }
+
 } else {
-    // -------------------- SQLITE fallback (existing logic) --------------------
-    // Financial summary
+    // -------------------- SQLITE fallback --------------------
+
+    // Financial summary (txn totals)
     $summary = $pdo->prepare("
       SELECT 
         SUM(CASE WHEN txn_type='INCOME' THEN amount ELSE 0 END) as total_income,
@@ -201,9 +228,9 @@ if ($use_oracle) {
     ");
     $summary->execute([$uid]);
     $fin = $summary->fetch(PDO::FETCH_ASSOC);
-    $total_income = (float)($fin['total_income'] ?? 0);
+    $total_income  = (float)($fin['total_income'] ?? 0);
     $total_expense = (float)($fin['total_expense'] ?? 0);
-    $net_balance = $total_income - $total_expense;
+    $net_balance   = $total_income - $total_expense;
 
     // Recent transactions
     $recent_txn = $pdo->prepare("
@@ -246,7 +273,7 @@ if ($use_oracle) {
     $cat_breakdown->execute([$uid]);
     $top_categories = $cat_breakdown->fetchAll(PDO::FETCH_ASSOC);
 
-    // Account balances via local view
+    // Account balances (top 5) via local view
     $acc_balances = $pdo->prepare("
       SELECT account_name, current_balance, account_type
       FROM V_ACCOUNT_BALANCES
@@ -256,6 +283,27 @@ if ($use_oracle) {
     ");
     $acc_balances->execute([$uid]);
     $accounts = $acc_balances->fetchAll(PDO::FETCH_ASSOC);
+
+    // TOTAL BALANCE across ALL accounts (Opening + Income - Expense)
+    $tb = $pdo->prepare("
+      SELECT SUM(opening_balance + IFNULL(inc,0) - IFNULL(exp,0)) AS total_balance
+      FROM (
+        SELECT
+          a.local_account_id,
+          IFNULL(a.opening_balance,0) AS opening_balance,
+          SUM(CASE WHEN UPPER(t.txn_type)='INCOME'  THEN t.amount ELSE 0 END) AS inc,
+          SUM(CASE WHEN UPPER(t.txn_type)='EXPENSE' THEN t.amount ELSE 0 END) AS exp
+        FROM ACCOUNTS_LOCAL a
+        LEFT JOIN TRANSACTIONS_LOCAL t
+          ON t.account_local_id = a.local_account_id
+         AND t.user_local_id    = a.user_local_id
+        WHERE a.user_local_id = ?
+          AND a.is_active = 1
+        GROUP BY a.local_account_id, a.opening_balance
+      )
+    ");
+    $tb->execute([$uid]);
+    $total_balance = (float)($tb->fetchColumn() ?? 0);
 }
 ?>
 <!doctype html>
@@ -374,13 +422,16 @@ if ($use_oracle) {
           <i class="fas fa-balance-scale"></i>
         </div>
         <div class="overview-content">
-          <span class="overview-label">Net Balance</span>
-          <span class="overview-amount <?= $net_balance >= 0 ? 'positive' : 'negative' ?>">
-            <?= number_format($net_balance, 2) ?>
+          <span class="overview-label">Total Balance</span>
+          <span class="overview-amount <?= $total_balance >= 0 ? 'positive' : 'negative' ?>">
+            <?= number_format($total_balance, 2) ?>
           </span>
-          <div class="overview-trend <?= $net_balance >= 0 ? 'positive' : '' ?>">
-            <i class="fas fa-<?= $net_balance >= 0 ? 'check' : 'exclamation' ?>-circle"></i>
-            <span><?= $net_balance >= 0 ? 'Healthy' : 'Deficit' ?></span>
+          <div class="overview-trend <?= $total_balance >= 0 ? 'positive' : '' ?>">
+            <i class="fas fa-<?= $total_balance >= 0 ? 'check' : 'exclamation' ?>-circle"></i>
+            <span><?= $total_balance >= 0 ? 'Healthy' : 'Deficit' ?></span>
+          </div>
+          <div style="margin-top:6px;font-size:12px;color:#6b7280">
+            Txn Net (Income − Expense): <?= number_format($net_balance, 2) ?>
           </div>
         </div>
       </div>

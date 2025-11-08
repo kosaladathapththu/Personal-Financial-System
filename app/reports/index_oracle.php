@@ -140,14 +140,14 @@ $txns = []; $accounts = $overall = [];
 if ($db['type'] === 'oracle' && $serverUid > 0) {
     $B = ['P_FROM'=>$from, 'P_TO'=>$to, 'P_UID'=>$serverUid];
 
-    // OVERALL (normalize/trim type)
+    // OVERALL (normalize/trim type + friendly dates)
     $SQL_OVERALL = "
         SELECT
           COUNT(t.server_txn_id) AS CNT,
           NVL(SUM(CASE WHEN TRIM(UPPER(t.txn_type))='INCOME'  THEN t.amount ELSE 0 END),0) AS INCOME,
           NVL(SUM(CASE WHEN TRIM(UPPER(t.txn_type))='EXPENSE' THEN t.amount ELSE 0 END),0) AS EXPENSE,
-          MIN(t.txn_date) AS FIRST_TXN,
-          MAX(t.txn_date) AS LAST_TXN
+          TO_CHAR(MIN(t.txn_date),'DD-MON-YY') AS FIRST_TXN,
+          TO_CHAR(MAX(t.txn_date),'DD-MON-YY') AS LAST_TXN
         FROM TRANSACTIONS_CLOUD t
         WHERE t.user_server_id = :P_UID
           AND t.txn_date >= TO_DATE(:P_FROM,'DD-MM-YYYY')
@@ -193,7 +193,7 @@ if ($db['type'] === 'oracle' && $serverUid > 0) {
           t.server_txn_id,
           t.client_txn_uuid,
           t.user_server_id,
-          t.txn_date,
+          TO_CHAR(t.txn_date,'YYYY-MM-DD') AS TXN_DATE,
           TRIM(UPPER(t.txn_type)) AS TXN_TYPE,
           t.amount,
           t.note,
@@ -266,7 +266,7 @@ if ($db['type'] === 'oracle' && $serverUid > 0) {
           t.local_txn_id          AS server_txn_id,
           t.client_txn_uuid,
           t.user_local_id         AS user_server_id,
-          substr(t.txn_date,1,10) AS txn_date,
+          substr(t.txn_date,1,10) AS TXN_DATE,
           TRIM(UPPER(t.txn_type)) AS TXN_TYPE,
           t.amount,
           t.note,
@@ -278,7 +278,7 @@ if ($db['type'] === 'oracle' && $serverUid > 0) {
         WHERE t.user_local_id = :P_UID
           AND date(substr(t.txn_date,1,10)) >= date(:P_FROM)
           AND date(substr(t.txn_date,1,10)) <  date(:P_TO1)
-        ORDER BY txn_date DESC, server_txn_id DESC
+        ORDER BY TXN_DATE DESC, server_txn_id DESC
     ";
 
     $overall  = db_query($db, $SQL_OVERALL,  $B);
@@ -287,7 +287,7 @@ if ($db['type'] === 'oracle' && $serverUid > 0) {
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
-   TOTALS
+   TOTALS (+ Total Balance across all accounts in the period)
    ──────────────────────────────────────────────────────────────────────────── */
 $totOpen=$totInc=$totExp=$totBal=0.0;
 foreach ($accounts as $r) {
@@ -410,6 +410,7 @@ $to_html   = ddmmyyyy_to_ymd($to);
         <div class="stat"><div class="label">Total Expense</div><div class="value" style="color:#dc2626">$<?= number_format($ov['EXPENSE'],2) ?></div></div>
         <?php $net = $ov['INCOME']-$ov['EXPENSE']; ?>
         <div class="stat"><div class="label">Net Amount</div><div class="value" style="color:<?= $net>=0?'#059669':'#dc2626' ?>">$<?= number_format($net,2) ?></div></div>
+        <div class="stat"><div class="label">Total Balance (Opening + Net)</div><div class="value" style="color:<?= ($net+$totOpen)>=0?'#059669':'#dc2626' ?>">$<?= number_format($totOpen + $net,2) ?></div></div>
       </div>
       <table class="data-table">
         <thead><tr><th>First Transaction</th><th>Last Transaction</th></tr></thead>
@@ -503,22 +504,22 @@ $to_html   = ddmmyyyy_to_ymd($to);
 // Summary CSV / PDF
 function downloadReport(format='csv'){
   if(format==='csv'){
-    let csv = 'PFMS My Financial Report\\n';
-    csv += 'Generated,' + new Date().toLocaleString() + '\\n';
-    csv += 'Period,<?= h($from) ?> to <?= h($to) ?>\\n';
-    csv += 'Database,<?= $db['type'] ?>\\n\\n';
-    csv += 'OVERALL SUMMARY\\n';
-    csv += 'Total Transactions,Income,Expense,Net\\n';
-    csv += '<?= $ov['CNT'] ?>,<?= number_format($ov['INCOME'],2) ?>,<?= number_format($ov['EXPENSE'],2) ?>,<?= number_format($ov['INCOME']-$ov['EXPENSE'],2) ?>\\n\\n';
-    csv += 'ACCOUNT BALANCE\\n';
-    csv += 'Account,Opening,Income,Expense,Balance\\n';
+    let csv = 'PFMS My Financial Report\n';
+    csv += 'Generated,' + new Date().toLocaleString() + '\n';
+    csv += 'Period,<?= h($from) ?> to <?= h($to) ?>\n';
+    csv += 'Database,<?= $db['type'] ?>\n\n';
+    csv += 'OVERALL SUMMARY\n';
+    csv += 'Total Transactions,Income,Expense,Net,Opening,Total Balance\n';
+    csv += '<?= $ov['CNT'] ?>,<?= number_format($ov['INCOME'],2) ?>,<?= number_format($ov['EXPENSE'],2) ?>,<?= number_format($ov['INCOME']-$ov['EXPENSE'],2) ?>,<?= number_format($totOpen,2) ?>,<?= number_format($totOpen + ($ov['INCOME']-$ov['EXPENSE']),2) ?>\n\n';
+    csv += 'ACCOUNT BALANCE\n';
+    csv += 'Account,Opening,Income,Expense,Balance\n';
     <?php foreach ($accounts as $a):
       $open=(float)($a['OPENING_BALANCE']??0);
       $inc =(float)($a['INC_AMT']??0);
       $exp =(float)($a['EXP_AMT']??0);
       $bal =$open+$inc-$exp;
     ?>
-      csv += '<?= h((string)($a['ACCOUNT_NAME'] ?? 'Unknown')) ?>,<?= number_format($open,2) ?>,<?= number_format($inc,2) ?>,<?= number_format($exp,2) ?>,<?= number_format($bal,2) ?>\\n';
+      csv += '<?= h((string)($a['ACCOUNT_NAME'] ?? 'Unknown')) ?>,<?= number_format($open,2) ?>,<?= number_format($inc,2) ?>,<?= number_format($exp,2) ?>,<?= number_format($bal,2) ?>\n';
     <?php endforeach; ?>
     const blob = new Blob([csv],{type:'text/csv'}), url=URL.createObjectURL(blob), a=document.createElement('a');
     a.href=url; a.download='PFMS_My_Report_<?= date('Ymd') ?>.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
@@ -530,11 +531,11 @@ function downloadReport(format='csv'){
 
 // Transactions CSV
 function downloadTxnsCsv(){
-  let csv = 'Date,Type,Amount,Account,Category,Note,UUID\\n';
+  let csv = 'Date,Type,Amount,Account,Category,Note,UUID\n';
   <?php foreach ($txns as $t):
     $note = str_replace(["\r","\n",","],[" "," ",";"], (string)($t['NOTE'] ?? ''));
   ?>
-    csv += '<?= h($t['TXN_DATE']) ?>,<?= h($t['TXN_TYPE']) ?>,<?= number_format((float)$t['AMOUNT'],2) ?>,<?= h($t['ACCOUNT_NAME']) ?>,<?= h($t['CATEGORY_NAME']) ?>,<?= $note ?>,<?= h((string)$t['CLIENT_TXN_UUID']) ?>\\n';
+    csv += '<?= h($t['TXN_DATE']) ?>,<?= h($t['TXN_TYPE']) ?>,<?= number_format((float)$t['AMOUNT'],2) ?>,<?= h($t['ACCOUNT_NAME']) ?>,<?= h($t['CATEGORY_NAME']) ?>,<?= $note ?>,<?= h((string)$t['CLIENT_TXN_UUID']) ?>\n';
   <?php endforeach; ?>
   const blob = new Blob([csv],{type:'text/csv'}), url=URL.createObjectURL(blob), a=document.createElement('a');
   a.href=url; a.download='PFMS_My_Transactions_<?= date('Ymd') ?>.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
