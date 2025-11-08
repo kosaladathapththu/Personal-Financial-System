@@ -199,7 +199,7 @@ $msg = $_GET['msg'] ?? '';
         <i class="fas fa-exchange-alt"></i>
         <span>Transactions</span>
       </a>
-      <a href="<?= APP_BASE ?>/app/reports/index.php" class="nav-item">
+      <a href="<?= APP_BASE ?>/app/reports/index_oracle.php" class="nav-item">
         <i class="fas fa-chart-bar"></i>
         <span>Reports</span>
       </a>

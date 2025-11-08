@@ -18,7 +18,7 @@ _Track your income, expenses, and reports — all offline and lightweight!_
 
 </div>
 
----Assign
+---
 
 <div align="center">
 
@@ -314,16 +314,6 @@ cd pfms
 <br><br>
 <a href="https://github.com/virajViduranga"><img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github" alt="GitHub"></a>
 </td>
-<td align="center" width="33%">
-<img src="https://github.com/DulminaShehan.png" width="120" style="border-radius: 50%; border: 3px solid #FF9800;">
-<br>
-<b>Dulmina</b>
-<br>
-<sub>Developer</sub>
-<br><br>
-<a href="https://github.com/DulminaShehan"><img src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github" alt="GitHub"></a>
-</td>
-    
 </tr>
 </table>
 

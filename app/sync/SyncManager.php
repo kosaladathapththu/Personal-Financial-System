@@ -3,9 +3,14 @@
  * PFMS — Robust SyncManager (UI + CLI safe)
  * Path: app/sync/SyncManager.php
  *
- * Fixes:
- *   - All Oracle table refs are schema-qualified via $this->T('TABLE')
- *   - Works even if session user != table owner
+ * Flow:
+ *   1) Ensure cloud user (create or link)
+ *   2) Push ACCOUNTS_LOCAL ➜ ACCOUNTS_CLOUD
+ *   3) Repair account mappings (IDs that point to missing rows)
+ *   4) Push CATEGORIES_LOCAL ➜ CATEGORIES_CLOUD (parents→children)
+ *   5) Repair category mappings (IDs that point to missing rows)
+ *   6) Push TRANSACTIONS_LOCAL (PENDING) ➜ TRANSACTIONS_CLOUD
+ *   7) Log everything to app/sync/sync.log
  */
 
 class SyncManager {
@@ -16,7 +21,6 @@ class SyncManager {
     private int $server_user_id = 0;
     private array $errors = [];
     private string $logFile;
-    private string $schema; // << added
 
     public function __construct(PDO $sqlite_db, $oracle_conn, int $local_user_id) {
         $this->sqlite_db     = $sqlite_db;
@@ -24,11 +28,8 @@ class SyncManager {
         $this->local_user_id = $local_user_id;
         $this->logFile       = __DIR__ . '/sync.log';
 
-        // read target schema from env (falls back to empty ⇒ no prefix)
-        $this->schema = defined('ORACLE_CURRENT_SCHEMA') ? (string)constant('ORACLE_CURRENT_SCHEMA') : '';
-
         $this->log("\n────────────────────────────────────────────");
-        $this->log("SyncManager constructed (local_user_id={$this->local_user_id}, schema={$this->schema})");
+        $this->log("SyncManager constructed (local_user_id={$this->local_user_id})");
 
         $this->server_user_id = $this->ensureCloudUser();
         $this->log("Linked server_user_id={$this->server_user_id}");
@@ -44,13 +45,8 @@ class SyncManager {
         $e = is_resource($stmtOrConn) || $stmtOrConn ? oci_error($stmtOrConn) : oci_error();
         $m = $context . ' :: ' . ($e['message'] ?? 'Unknown OCI error');
         $this->errors[] = $m;
-        $this->log("❌ $m");
+        $this->log(" $m");
         throw new Exception($m);
-    }
-
-    // prefix table with schema if provided
-    private function T(string $name): string {
-        return $this->schema !== '' ? "{$this->schema}.{$name}" : $name;
     }
 
     private function strOrNull($v) { return ($v === null || $v === '') ? null : $v; }
@@ -69,7 +65,7 @@ class SyncManager {
     }
 
     private function oracleIdExists(string $table, string $col, int $id): bool {
-        $sql = "SELECT 1 FROM " . $this->T($table) . " WHERE {$col}=:id";
+        $sql = "SELECT 1 FROM {$table} WHERE {$col}=:id";
         $s = oci_parse($this->oracle_conn, $sql);
         $this->ensureBindInt($s, ':id', $id);
         if (!oci_execute($s)) $this->ociFail($s, "Exist check {$table}");
@@ -92,7 +88,7 @@ class SyncManager {
         $name  = (string)($u['full_name'] ?: 'Local User');
 
         // Find by email
-        $stmt = oci_parse($this->oracle_conn, "SELECT server_user_id FROM " . $this->T('USERS_CLOUD') . " WHERE LOWER(email)=LOWER(:e)");
+        $stmt = oci_parse($this->oracle_conn, "SELECT server_user_id FROM USERS_CLOUD WHERE LOWER(email)=LOWER(:e)");
         $eVar = $email;
         oci_bind_by_name($stmt, ':e', $eVar);
         if (!oci_execute($stmt)) $this->ociFail($stmt, 'Find cloud user');
@@ -106,7 +102,7 @@ class SyncManager {
         }
 
         // Create new user
-        $sql = "INSERT INTO " . $this->T('USERS_CLOUD') . " (email, password_hash, full_name, created_at, updated_at)
+        $sql = "INSERT INTO USERS_CLOUD (email, password_hash, full_name, created_at, updated_at)
                 VALUES (:e, 'local-sync', :n, SYSTIMESTAMP, SYSTIMESTAMP)
                 RETURNING server_user_id INTO :id";
         $stmt = oci_parse($this->oracle_conn, $sql);
@@ -184,7 +180,7 @@ class SyncManager {
         // Idempotent check by (user, name, type)
         $find = oci_parse($this->oracle_conn,
             "SELECT server_account_id
-               FROM " . $this->T('ACCOUNTS_CLOUD') . "
+               FROM ACCOUNTS_CLOUD
               WHERE user_server_id = :u
                 AND account_name    = :n
                 AND account_type    = :t");
@@ -202,7 +198,7 @@ class SyncManager {
         }
 
         // Insert new
-        $sql = "INSERT INTO " . $this->T('ACCOUNTS_CLOUD') . "
+        $sql = "INSERT INTO ACCOUNTS_CLOUD
                   (user_server_id, account_name, account_type, currency_code, opening_balance, is_active,
                    created_at, updated_at)
                 VALUES
@@ -257,7 +253,7 @@ class SyncManager {
             // Try to find again by (user, name, type)
             $f = oci_parse($this->oracle_conn,
                 "SELECT server_account_id
-                   FROM " . $this->T('ACCOUNTS_CLOUD') . "
+                   FROM ACCOUNTS_CLOUD
                   WHERE user_server_id = :u
                     AND account_name    = :n
                     AND account_type    = :t");
@@ -311,7 +307,7 @@ class SyncManager {
                 $parentSid = null;
                 if (!empty($c['parent_local_id'])) {
                     $p = $byId[(int)$c['parent_local_id']] ?? null;
-                    if (!$p) continue; // parent row missing locally
+                    if (!$p) continue; // parent row missing locally (shouldn't happen)
                     $parentSid = $p['server_category_id'] ?? null;
                     if ($parentSid === '' || $parentSid === null) continue; // wait for parent
                 }
@@ -346,7 +342,7 @@ class SyncManager {
         // idempotent by (user, name, type)
         $find = oci_parse($this->oracle_conn,
             "SELECT server_category_id
-               FROM " . $this->T('CATEGORIES_CLOUD') . "
+               FROM CATEGORIES_CLOUD
               WHERE user_server_id=:u AND category_name=:n AND category_type=:t");
         $this->ensureBindInt($find, ':u', $this->server_user_id);
         $nVar = (string)$c['category_name'];
@@ -358,7 +354,7 @@ class SyncManager {
         if ($row && !empty($row['SERVER_CATEGORY_ID'])) return (int)$row['SERVER_CATEGORY_ID'];
 
         // insert
-        $sql = "INSERT INTO " . $this->T('CATEGORIES_CLOUD') . "
+        $sql = "INSERT INTO CATEGORIES_CLOUD
                   (user_server_id, parent_server_id, category_name, category_type, created_at, updated_at)
                 VALUES
                   (:u, :p, :n, :t,
@@ -415,7 +411,7 @@ class SyncManager {
 
             // try find in cloud again
             $f = oci_parse($this->oracle_conn,
-                "SELECT server_category_id FROM " . $this->T('CATEGORIES_CLOUD') . "
+                "SELECT server_category_id FROM CATEGORIES_CLOUD
                   WHERE user_server_id=:u AND category_name=:n AND category_type=:t");
             $this->ensureBindInt($f, ':u', $this->server_user_id);
             $nVar = (string)$c['category_name'];
@@ -495,14 +491,14 @@ class SyncManager {
     private function upsertCloudTransaction(array $t): int {
         // idempotent by client uuid
         $find = oci_parse($this->oracle_conn,
-            "SELECT server_txn_id FROM " . $this->T('TRANSACTIONS_CLOUD') . " WHERE client_txn_uuid=:u");
+            "SELECT server_txn_id FROM TRANSACTIONS_CLOUD WHERE client_txn_uuid=:u");
         $uuidVar = (string)$t['client_txn_uuid'];
         oci_bind_by_name($find, ':u', $uuidVar);
         if (!oci_execute($find)) $this->ociFail($find, 'Find txn');
         $row = oci_fetch_assoc($find);
         if ($row && !empty($row['SERVER_TXN_ID'])) return (int)$row['SERVER_TXN_ID'];
 
-        $sql = "INSERT INTO " . $this->T('TRANSACTIONS_CLOUD') . "
+        $sql = "INSERT INTO TRANSACTIONS_CLOUD
                   (client_txn_uuid, user_server_id, account_server_id, category_server_id,
                    txn_type, amount, txn_date, note, created_at, updated_at)
                 VALUES

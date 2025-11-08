@@ -138,9 +138,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <i class="fas fa-exchange-alt"></i>
         <span>Transactions</span>
       </a>
-      <a href="<?= APP_BASE ?>/app/reports/index.php" class="nav-item">
+      <a href="<?= APP_BASE ?>/app/reports/index_oracle.php" class="nav-item">
         <i class="fas fa-chart-bar"></i>
         <span>Reports</span>
+      </a>
+      <a href="<?= APP_BASE ?>/public/sync.php" class="nav-item active">
+        <i class="fas fa-sync-alt"></i>
+        <span>Sync</span>
       </a>
     </nav>
     

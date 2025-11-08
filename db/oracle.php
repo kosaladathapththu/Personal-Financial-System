@@ -6,8 +6,8 @@
  * Features:
  *  - Connect via SERVICE (PDB) or SID
  *  - Optional ALTER SESSION SET CURRENT_SCHEMA=<schema>
- *  - Safe bind-by-name
- *  - Helpers: execute, fetch_all, query_all, tx, ping, status
+ *  - Safe bind-by-name (no array elements passed by reference)
+ *  - Helpers: execute, fetch_all, query_all, tx (begin/commit/rollback), ping, status
  */
 
 //////////////////////////////
@@ -26,10 +26,10 @@ function oracle_close($conn): void {
 
 /** Build connection string depending on SERVICE or SID */
 function oracle_build_conn_str(): ?string {
-    $host    = defined('ORACLE_HOST')    ? constant('ORACLE_HOST')    : 'localhost';
-    $port    = defined('ORACLE_PORT')    ? constant('ORACLE_PORT')    : '1521';
-    $service = defined('ORACLE_SERVICE') ? trim((string)constant('ORACLE_SERVICE')) : '';
-    $sid     = defined('ORACLE_SID')     ? trim((string)constant('ORACLE_SID'))     : '';
+    $host    = defined('ORACLE_HOST')    ? ORACLE_HOST    : 'localhost';
+    $port    = defined('ORACLE_PORT')    ? ORACLE_PORT    : '1521';
+    $service = defined('ORACLE_SERVICE') ? trim((string)ORACLE_SERVICE) : '';
+    $sid     = defined('ORACLE_SID')     ? trim((string)ORACLE_SID)     : '';
 
     if ($service !== '') {
         // Easy connect using SERVICE (recommended for XE PDBs, e.g., XEPDB1)
@@ -59,8 +59,8 @@ function oracle_connect() {
         return null;
     }
 
-    $username = defined('ORACLE_USER') ? (string)constant('ORACLE_USER') : '';
-    $password = defined('ORACLE_PASS') ? (string)constant('ORACLE_PASS') : '';
+    $username = defined('ORACLE_USER') ? (string)ORACLE_USER : '';
+    $password = defined('ORACLE_PASS') ? (string)ORACLE_PASS : '';
 
     if ($username === '' || $password === '') {
         error_log('oracle_connect: ORACLE_USER/ORACLE_PASS not set.');
@@ -71,7 +71,7 @@ function oracle_connect() {
     if (!$connStr) return null;
 
     try {
-        $charset = defined('ORACLE_CHARSET') ? (string)constant('ORACLE_CHARSET') : 'AL32UTF8';
+        $charset = (defined('ORACLE_CHARSET') && ORACLE_CHARSET) ? (string)ORACLE_CHARSET : 'AL32UTF8';
 
         $conn = @oci_connect($username, $password, $connStr, $charset);
         if (!$conn) {
@@ -81,8 +81,8 @@ function oracle_connect() {
         }
 
         // Optional CURRENT_SCHEMA
-        if (defined('ORACLE_CURRENT_SCHEMA') && constant('ORACLE_CURRENT_SCHEMA')) {
-            $schema = (string)constant('ORACLE_CURRENT_SCHEMA');
+        if (defined('ORACLE_CURRENT_SCHEMA') && ORACLE_CURRENT_SCHEMA) {
+            $schema = (string)ORACLE_CURRENT_SCHEMA;
             $st = @oci_parse($conn, "ALTER SESSION SET CURRENT_SCHEMA={$schema}");
             if (!$st || !@oci_execute($st)) {
                 $e = oci_error($st) ?: oci_error();
@@ -107,25 +107,40 @@ function oracle_conn() { return oracle_connect(); }
 
 /**
  * Internal: bind params safely (must bind variables, not array elements).
+ * Supports ints (SQLT_INT), floats (SQLT_FLT), strings/dates (default).
  */
 function _oracle_bind_params($stmt, array &$params): void {
+    // Create local variables to satisfy by-ref requirement.
+    // Keep them in an array to preserve references until execute finishes.
     $refs = [];
     foreach ($params as $key => $val) {
-        $var = $val;
-        $refs[$key] = $var;
+        $var = $val;             // copy into variable
+        $refs[$key] = $var;      // store so it stays in scope
 
         if (is_int($var)) {
             oci_bind_by_name($stmt, $key, $refs[$key], -1, SQLT_INT);
         } elseif (is_float($var)) {
             oci_bind_by_name($stmt, $key, $refs[$key], -1, SQLT_FLT);
         } else {
+            // strings, nullable strings, date strings, etc.
             oci_bind_by_name($stmt, $key, $refs[$key]);
         }
     }
+    // Keep $refs alive via a hidden property on the statement handle (hacky but effective)
+    // so PHP GC doesn't free them before execute finishes.
+    // @see: this is a common pattern to ensure ref vars persist.
     $GLOBALS['__oci_stmt_refs__'][spl_object_id($stmt)] = $refs;
 }
 
-/** Execute SQL with optional bind params */
+/**
+ * Execute SQL with optional bind params.
+ *
+ * @param resource $conn
+ * @param string   $sql
+ * @param array    $params e.g. [':id'=>1, ':name'=>'Alice']
+ * @param int      $mode   OCI_COMMIT_ON_SUCCESS (default) or OCI_NO_AUTO_COMMIT
+ * @return resource|false  Statement handle or false on error
+ */
 function oracle_execute($conn, string $sql, array $params = [], int $mode = OCI_COMMIT_ON_SUCCESS) {
     if (!$conn) {
         error_log('oracle_execute: Invalid connection');
@@ -144,10 +159,7 @@ function oracle_execute($conn, string $sql, array $params = [], int $mode = OCI_
     }
 
     $ok = @oci_execute($stmt, $mode);
-    
-    unset($GLOBALS['__oci_stmt_refs__'][intval($stmt)]);
-
-
+    unset($GLOBALS['__oci_stmt_refs__'][spl_object_id($stmt)]); // release refs
     if (!$ok) {
         $e = oci_error($stmt);
         error_log('oracle_execute (execute): ' . ($e['message'] ?? 'Unknown'));
@@ -177,9 +189,16 @@ function oracle_query_all($conn, string $sql, array $params = [], int $mode = OC
 // Transactions
 //////////////////////////////
 
-function oracle_begin($conn) { return true; }
-function oracle_commit($conn): bool { return $conn ? @oci_commit($conn) : false; }
-function oracle_rollback($conn): bool { return $conn ? @oci_rollback($conn) : false; }
+function oracle_begin($conn) {
+    // Nothing special to begin; just use OCI_NO_AUTO_COMMIT in execute calls.
+    return true;
+}
+function oracle_commit($conn): bool {
+    return $conn ? @oci_commit($conn) : false;
+}
+function oracle_rollback($conn): bool {
+    return $conn ? @oci_rollback($conn) : false;
+}
 
 //////////////////////////////
 // Diagnostics / Status
@@ -199,7 +218,7 @@ function oracle_test_connection(): bool {
     return false;
 }
 
-/** Get connection status details */
+/** Get connection status details: version, DB/CON name, session user */
 function oracle_get_status(): array {
     $status = [
         'extension_loaded' => oracle_is_available(),
@@ -208,7 +227,7 @@ function oracle_get_status(): array {
         'db_name'          => null,
         'con_name'         => null,
         'session_user'     => null,
-        'current_schema'   => defined('ORACLE_CURRENT_SCHEMA') ? (string)constant('ORACLE_CURRENT_SCHEMA') : '',
+        'current_schema'   => defined('ORACLE_CURRENT_SCHEMA') ? (string)ORACLE_CURRENT_SCHEMA : '',
         'error'            => null,
     ];
 
@@ -225,11 +244,13 @@ function oracle_get_status(): array {
 
     $status['can_connect'] = true;
 
+    // Version
     $vers = @oci_parse($conn, "SELECT banner FROM v\$version WHERE banner LIKE 'Oracle%'");
     if ($vers && @oci_execute($vers) && ($r = oci_fetch_assoc($vers))) {
         $status['oracle_version'] = $r['BANNER'] ?? null;
     }
 
+    // Where am I?
     $who = @oci_parse($conn, "
         SELECT
           sys_context('USERENV','DB_NAME')      AS db_name,
@@ -239,7 +260,7 @@ function oracle_get_status(): array {
     ");
     if ($who && @oci_execute($who) && ($r = oci_fetch_assoc($who))) {
         $status['db_name']      = $r['DB_NAME'] ?? null;
-        $status['con_name']     = $r['CON_NAME'] ?? null;
+        $status['con_name']     = $r['CON_NAME'] ?? null;   // expect XEPDB1
         $status['session_user'] = $r['SESSION_USER'] ?? null;
     }
 

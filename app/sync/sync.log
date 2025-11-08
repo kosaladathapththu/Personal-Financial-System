@@ -1108,3 +1108,65 @@
 [2025-11-04 18:24:39] Categories synced: 0
 [2025-11-04 18:24:39] Transactions synced: 0
 [2025-11-04 18:24:39] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-07 12:42:32] 
+────────────────────────────────────────────
+[2025-11-07 12:42:32] SyncManager constructed (local_user_id=2)
+[2025-11-07 12:42:32] Local user already linked to server_user_id=1
+[2025-11-07 12:42:32] Linked server_user_id=1
+[2025-11-07 12:42:32] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-07 12:42:32] Accounts synced: 0
+[2025-11-07 12:42:32] Categories synced: 0
+[2025-11-07 12:42:32] Transactions synced: 0
+[2025-11-07 12:42:32] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-07 20:31:56] 
+────────────────────────────────────────────
+[2025-11-07 20:31:56] SyncManager constructed (local_user_id=2)
+[2025-11-07 20:31:56] Local user already linked to server_user_id=1
+[2025-11-07 20:31:56] Linked server_user_id=1
+[2025-11-07 20:31:56] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-07 20:31:56] Accounts synced: 0
+[2025-11-07 20:31:56] Categories synced: 0
+[2025-11-07 20:31:56] Transactions synced: 1
+[2025-11-07 20:31:56] === SYNC DONE: A=0 C=0 T=1 ===
+[2025-11-08 02:27:31] 
+────────────────────────────────────────────
+[2025-11-08 02:27:31] SyncManager constructed (local_user_id=2)
+[2025-11-08 02:27:31] Local user already linked to server_user_id=1
+[2025-11-08 02:27:31] Linked server_user_id=1
+[2025-11-08 02:27:31] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-08 02:27:31] Accounts synced: 0
+[2025-11-08 02:27:31] Categories synced: 1
+[2025-11-08 02:27:31] Repaired category map 'Monthly Chatgpt Pro' → 161
+[2025-11-08 02:27:31] Transactions synced: 0
+[2025-11-08 02:27:31] === SYNC DONE: A=0 C=1 T=0 ===
+[2025-11-08 21:38:29] 
+────────────────────────────────────────────
+[2025-11-08 21:38:29] SyncManager constructed (local_user_id=2)
+[2025-11-08 21:38:29] Local user already linked to server_user_id=1
+[2025-11-08 21:38:29] Linked server_user_id=1
+[2025-11-08 21:38:29] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-08 21:38:29] Accounts synced: 0
+[2025-11-08 21:38:29] Categories synced: 0
+[2025-11-08 21:38:29] Transactions synced: 1
+[2025-11-08 21:38:29] === SYNC DONE: A=0 C=0 T=1 ===
+[2025-11-09 01:02:07] 
+────────────────────────────────────────────
+[2025-11-09 01:02:07] SyncManager constructed (local_user_id=2)
+[2025-11-09 01:02:07] Local user already linked to server_user_id=1
+[2025-11-09 01:02:07] Linked server_user_id=1
+[2025-11-09 01:02:07] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-09 01:02:07] Accounts synced: 0
+[2025-11-09 01:02:07] Categories synced: 0
+[2025-11-09 01:02:07] Transactions synced: 0
+[2025-11-09 01:02:07] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-09 01:13:28] 
+────────────────────────────────────────────
+[2025-11-09 01:13:28] SyncManager constructed (local_user_id=2)
+[2025-11-09 01:13:28] Local user already linked to server_user_id=1
+[2025-11-09 01:13:28] Linked server_user_id=1
+[2025-11-09 01:13:28] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-09 01:13:28] Accounts synced: 1
+[2025-11-09 01:13:28] Repaired account map 'Commercial bank Serving' → 21
+[2025-11-09 01:13:28] Categories synced: 0
+[2025-11-09 01:13:28] Transactions synced: 1
+[2025-11-09 01:13:28] === SYNC DONE: A=1 C=0 T=1 ===

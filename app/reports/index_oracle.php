@@ -2,10 +2,10 @@
 // app/reports/index_oracle.php
 declare(strict_types=1);
 
-require _DIR_ . '/../../config/env.php';
-require _DIR_ . '/../../db/oracle.php'; // oracle_conn(): ?resource
-require _DIR_ . '/../../db/sqlite.php'; // sqlite(): PDO
-require _DIR_ . '/../auth/common/auth_guard.php';
+require __DIR__ . '/../../config/env.php';
+require __DIR__ . '/../../db/oracle.php'; // oracle_conn(): ?resource
+require __DIR__ . '/../../db/sqlite.php'; // sqlite(): PDO
+require __DIR__ . '/../auth/common/auth_guard.php';
 
 function h($x){ return htmlspecialchars((string)$x, ENT_QUOTES, 'UTF-8'); }
 
