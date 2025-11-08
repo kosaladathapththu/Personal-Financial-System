@@ -1,38 +1,104 @@
 <?php
 require __DIR__ . '/../../../config/env.php';
 require __DIR__ . '/../../../db/sqlite.php';
+require __DIR__ . '/../../../db/oracle.php';
 require __DIR__ . '/../common/auth_guard.php';
+
+function h($x){ return htmlspecialchars((string)$x, ENT_QUOTES, 'UTF-8'); }
+function arr_keys_lower(array $r): array {
+    $o = [];
+    foreach ($r as $k=>$v) $o[strtolower((string)$k)] = $v;
+    return $o;
+}
 
 $pdo = sqlite();
 $uid = (int)($_SESSION['uid'] ?? 0);
 
-$stmt = $pdo->prepare("
-  SELECT local_account_id, account_name, account_type, currency_code,
-         current_balance, is_active, created_at, updated_at
-  FROM V_ACCOUNT_BALANCES
-  WHERE user_local_id = ?
-  ORDER BY is_active DESC, created_at DESC
-");
-$stmt->execute([$uid]);
-$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// ─────────────────────────────────────────────────────────────
+// 1️⃣ Resolve mapping (local → server user id)
+// ─────────────────────────────────────────────────────────────
+$mapStmt = $pdo->prepare("SELECT server_user_id FROM USERS_LOCAL WHERE local_user_id = ?");
+$mapStmt->execute([$uid]);
+$serverUid = (int)($mapStmt->fetchColumn() ?: 0);
 
+// ─────────────────────────────────────────────────────────────
+// 2️⃣ Try Oracle connection
+// ─────────────────────────────────────────────────────────────
+$oconn = @oracle_conn();
+$use_oracle = false;
+if ($oconn && $serverUid > 0) {
+    $chk = @oci_parse($oconn, "SELECT 1 FROM DUAL");
+    if ($chk && @oci_execute($chk)) $use_oracle = true;
+}
 
-// Calculate statistics
-$total_accounts = count($rows);
-$active_accounts = count(array_filter($rows, fn($r) => $r['is_active']));
+// ─────────────────────────────────────────────────────────────
+// 3️⃣ Fetch account data
+// ─────────────────────────────────────────────────────────────
+$rows = [];
+
+if ($use_oracle) {
+    // Oracle-first: Accounts + live balance calc
+    $sql = "
+        SELECT
+            a.server_account_id AS local_account_id,
+            a.account_name,
+            a.account_type,
+            NVL(a.currency_code, 'LKR') AS currency_code,
+            NVL(a.is_active,1) AS is_active,
+            a.created_at,
+            a.updated_at,
+            NVL(a.opening_balance,0)
+              + NVL(SUM(CASE
+                  WHEN UPPER(t.txn_type)='INCOME'  THEN t.amount
+                  WHEN UPPER(t.txn_type)='EXPENSE' THEN -t.amount
+                  ELSE 0 END),0) AS current_balance
+        FROM ACCOUNTS_CLOUD a
+        LEFT JOIN TRANSACTIONS_CLOUD t
+          ON t.account_server_id = a.server_account_id
+         AND t.user_server_id = a.user_server_id
+        WHERE a.user_server_id = :P_UID
+        GROUP BY
+          a.server_account_id,
+          a.account_name,
+          a.account_type,
+          a.currency_code,
+          a.is_active,
+          a.created_at,
+          a.updated_at,
+          a.opening_balance
+        ORDER BY NVL(a.is_active,1) DESC, a.created_at DESC
+    ";
+    $st = oci_parse($oconn, $sql);
+    oci_bind_by_name($st, ':P_UID', $serverUid, -1, SQLT_INT);
+    oci_execute($st);
+    while ($r = oci_fetch_assoc($st)) $rows[] = arr_keys_lower($r);
+
+} else {
+    // SQLite fallback
+    $stmt = $pdo->prepare("
+      SELECT local_account_id, account_name, account_type, currency_code,
+             current_balance, is_active, created_at, updated_at
+      FROM V_ACCOUNT_BALANCES
+      WHERE user_local_id = ?
+      ORDER BY is_active DESC, created_at DESC
+    ");
+    $stmt->execute([$uid]);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// ─────────────────────────────────────────────────────────────
+// 4️⃣ Calculate statistics
+// ─────────────────────────────────────────────────────────────
+$total_accounts   = count($rows);
+$active_accounts  = count(array_filter($rows, fn($r) => (int)$r['is_active']));
 $inactive_accounts = $total_accounts - $active_accounts;
-
-$total_balance = array_sum(array_map(fn($r) => (float)$r['current_balance'], $rows));
-
-
+$total_balance    = array_sum(array_map(fn($r) => (float)$r['current_balance'], $rows));
 
 // Group by account type
 $type_data = [];
 foreach ($rows as $r) {
-    $type = $r['account_type'];
-    if (!isset($type_data[$type])) {
-        $type_data[$type] = ['count' => 0, 'balance' => 0];
-    }
+    $type = strtoupper($r['account_type']);
+    if (!isset($type_data[$type])) $type_data[$type] = ['count' => 0, 'balance' => 0];
     $type_data[$type]['count']++;
     $type_data[$type]['balance'] += (float)$r['current_balance'];
 }
@@ -40,16 +106,12 @@ foreach ($rows as $r) {
 // Group by currency
 $currency_data = [];
 foreach ($rows as $r) {
-    $curr = $r['currency_code'];
-    if (!isset($currency_data[$curr])) {
-        $currency_data[$curr] = ['count' => 0, 'balance' => 0];
-    }
+    $curr = strtoupper($r['currency_code']);
+    if (!isset($currency_data[$curr])) $currency_data[$curr] = ['count' => 0, 'balance' => 0];
     $currency_data[$curr]['count']++;
     $currency_data[$curr]['balance'] += (float)$r['current_balance'];
 }
 
-
-// Recent activity (last 5 accounts)
 $recent = array_slice($rows, 0, 5);
 ?>
 <!doctype html>
@@ -112,19 +174,15 @@ $recent = array_slice($rows, 0, 5);
   <!-- Main Content -->
   <main class="main-content">
     
-    <!-- Top Bar -->
     <div class="top-bar">
       <div class="page-title">
         <h1>Accounts Overview</h1>
         <p>Manage and monitor your financial accounts</p>
       </div>
       <div class="top-actions">
-        <button class="btn-icon" title="Refresh">
+        <a href="<?= APP_BASE ?>/public/sync.php" class="btn-icon" title="Sync Now">
           <i class="fas fa-sync-alt"></i>
-        </button>
-        <button class="btn-icon" title="Filter">
-          <i class="fas fa-filter"></i>
-        </button>
+        </a>
         <a href="<?= APP_BASE ?>/app/auth/accounts/create.php" class="btn-primary">
           <i class="fas fa-plus"></i>
           <span>New Account</span>
@@ -132,114 +190,37 @@ $recent = array_slice($rows, 0, 5);
       </div>
     </div>
 
-    <!-- Quick Stats Grid -->
     <div class="stats-grid">
       <div class="stat-box stat-primary">
-        <div class="stat-icon">
-          <i class="fas fa-wallet"></i>
-        </div>
+        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
         <div class="stat-details">
           <span class="stat-label">Total Accounts</span>
           <span class="stat-value"><?= $total_accounts ?></span>
-          <span class="stat-change positive"><i class="fas fa-arrow-up"></i> All time</span>
         </div>
       </div>
-
       <div class="stat-box stat-success">
-        <div class="stat-icon">
-          <i class="fas fa-check-circle"></i>
-        </div>
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
         <div class="stat-details">
           <span class="stat-label">Active Accounts</span>
           <span class="stat-value"><?= $active_accounts ?></span>
-          <span class="stat-change positive"><i class="fas fa-check"></i> <?= $total_accounts > 0 ? round(($active_accounts/$total_accounts)*100) : 0 ?>% active</span>
         </div>
       </div>
-
       <div class="stat-box stat-warning">
-        <div class="stat-icon">
-          <i class="fas fa-coins"></i>
-        </div>
+        <div class="stat-icon"><i class="fas fa-coins"></i></div>
         <div class="stat-details">
           <span class="stat-label">Total Balance</span>
           <span class="stat-value"><?= number_format($total_balance, 2) ?></span>
-          <span class="stat-change"><i class="fas fa-money-bill-wave"></i> Combined</span>
         </div>
       </div>
-
       <div class="stat-box stat-info">
-        <div class="stat-icon">
-          <i class="fas fa-globe"></i>
-        </div>
+        <div class="stat-icon"><i class="fas fa-globe"></i></div>
         <div class="stat-details">
           <span class="stat-label">Currencies</span>
           <span class="stat-value"><?= count($currency_data) ?></span>
-          <span class="stat-change"><i class="fas fa-exchange-alt"></i> Multi-currency</span>
         </div>
       </div>
     </div>
 
-    <!-- Charts Section -->
-    <?php if ($total_accounts > 0): ?>
-    <div class="charts-section">
-      <div class="chart-container">
-        <div class="chart-header">
-          <div>
-            <h3>Account Distribution</h3>
-            <p>Breakdown by account type</p>
-          </div>
-          <div class="chart-legend" id="typeLegend"></div>
-        </div>
-        <div class="chart-body">
-          <canvas id="typeChart"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-container">
-        <div class="chart-header">
-          <div>
-            <h3>Balance Overview</h3>
-            <p>Total balance by currency</p>
-          </div>
-        </div>
-        <div class="chart-body">
-          <canvas id="currencyChart"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-container">
-        <div class="chart-header">
-          <div>
-            <h3>Account Status</h3>
-            <p>Active vs Inactive ratio</p>
-          </div>
-        </div>
-        <div class="chart-body">
-          <canvas id="statusChart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Account Type Cards -->
-    <div class="type-cards">
-      <?php foreach($type_data as $type => $data): ?>
-      <div class="type-card">
-        <div class="type-card-icon">
-          <i class="fas fa-<?= $type === 'Savings' ? 'piggy-bank' : ($type === 'Credit' ? 'credit-card' : 'university') ?>"></i>
-        </div>
-        <div class="type-card-content">
-          <h4><?= htmlspecialchars($type) ?></h4>
-          <div class="type-stats">
-            <span><?= $data['count'] ?> account<?= $data['count'] != 1 ? 's' : '' ?></span>
-            <span class="type-balance"><?= number_format($data['balance'], 2) ?></span>
-          </div>
-        </div>
-      </div>
-      <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
-
-    <!-- Accounts Table -->
     <div class="table-section">
       <div class="section-header">
         <div>
@@ -254,24 +235,23 @@ $recent = array_slice($rows, 0, 5);
 
       <?php if (empty($rows)): ?>
       <div class="empty-state">
-        <div class="empty-icon">
-          <i class="fas fa-wallet"></i>
-        </div>
+        <div class="empty-icon"><i class="fas fa-wallet"></i></div>
         <h3>No Accounts Found</h3>
-        <p>Start managing your finances by creating your first account</p>
+        <p>Create your first account to start tracking</p>
         <a href="<?= APP_BASE ?>/app/auth/accounts/create.php" class="btn-primary">
           <i class="fas fa-plus"></i>
-          <span>Create First Account</span>
+          <span>Create Account</span>
         </a>
       </div>
       <?php else: ?>
       <div class="accounts-grid">
         <?php foreach($rows as $r): ?>
-        <div class="account-card" data-account-name="<?= htmlspecialchars($r['account_name']) ?>" data-account-type="<?= htmlspecialchars($r['account_type']) ?>" data-currency="<?= htmlspecialchars($r['currency_code']) ?>">
+        <div class="account-card" 
+             data-account-name="<?= h($r['account_name']) ?>" 
+             data-account-type="<?= h($r['account_type']) ?>" 
+             data-currency="<?= h($r['currency_code']) ?>">
           <div class="account-header">
-            <div class="account-icon-wrapper">
-              <i class="fas fa-wallet"></i>
-            </div>
+            <div class="account-icon-wrapper"><i class="fas fa-wallet"></i></div>
             <div class="account-status">
               <?php if ($r['is_active']): ?>
                 <span class="badge badge-success"><i class="fas fa-circle"></i> Active</span>
@@ -280,34 +260,20 @@ $recent = array_slice($rows, 0, 5);
               <?php endif; ?>
             </div>
           </div>
-          
           <div class="account-body">
-            <h3><?= htmlspecialchars($r['account_name']) ?></h3>
+            <h3><?= h($r['account_name']) ?></h3>
             <div class="account-meta">
-              <span class="account-type">
-                <i class="fas fa-tag"></i>
-                <?= htmlspecialchars($r['account_type']) ?>
-              </span>
-              <span class="account-currency">
-                <i class="fas fa-dollar-sign"></i>
-                <?= htmlspecialchars($r['currency_code']) ?>
-              </span>
+              <span><i class="fas fa-tag"></i> <?= h($r['account_type']) ?></span>
+              <span><i class="fas fa-dollar-sign"></i> <?= h($r['currency_code']) ?></span>
             </div>
             <div class="account-balance">
               <span class="balance-label">Current Balance</span>
               <span class="balance-amount"><?= number_format((float)$r['current_balance'], 2) ?></span>
-
             </div>
           </div>
-          
           <div class="account-footer">
             <a href="<?= APP_BASE ?>/app/auth/accounts/edit.php?id=<?= (int)$r['local_account_id'] ?>" class="action-btn">
-              <i class="fas fa-edit"></i>
-              <span>Edit</span>
-            </a>
-            <a href="<?= APP_BASE ?>/app/auth/accounts/toggle.php?id=<?= (int)$r['local_account_id'] ?>" class="action-btn">
-              <i class="fas fa-<?= $r['is_active'] ? 'toggle-on' : 'toggle-off' ?>"></i>
-              <span><?= $r['is_active'] ? 'Disable' : 'Enable' ?></span>
+              <i class="fas fa-edit"></i> Edit
             </a>
           </div>
         </div>
@@ -320,140 +286,15 @@ $recent = array_slice($rows, 0, 5);
 </div>
 
 <script>
-// Search functionality
-document.getElementById('searchInput')?.addEventListener('input', function(e) {
-  const search = e.target.value.toLowerCase();
-  document.querySelectorAll('.account-card').forEach(card => {
-    const name = card.dataset.accountName.toLowerCase();
-    const type = card.dataset.accountType.toLowerCase();
-    const currency = card.dataset.currency.toLowerCase();
-    card.style.display = (name.includes(search) || type.includes(search) || currency.includes(search)) ? '' : 'none';
+document.getElementById('searchInput')?.addEventListener('input', e => {
+  const s = e.target.value.toLowerCase();
+  document.querySelectorAll('.account-card').forEach(c => {
+    const name = c.dataset.accountName.toLowerCase();
+    const type = c.dataset.accountType.toLowerCase();
+    const cur  = c.dataset.currency.toLowerCase();
+    c.style.display = (name.includes(s)||type.includes(s)||cur.includes(s)) ? '' : 'none';
   });
 });
-
-<?php if ($total_accounts > 0): ?>
-// Chart configuration
-const chartConfig = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      backgroundColor: 'rgba(15, 23, 42, 0.95)',
-      padding: 12,
-      borderRadius: 8,
-      titleFont: { size: 14, weight: 'bold' },
-      bodyFont: { size: 13 }
-    }
-  }
-};
-
-// Color palette
-const colors = {
-  primary: '#6366f1',
-  success: '#10b981',
-  warning: '#f59e0b',
-  danger: '#ef4444',
-  info: '#3b82f6',
-  purple: '#8b5cf6',
-  pink: '#ec4899',
-  teal: '#14b8a6'
-};
-
-const gradients = {
-  primary: ['#818cf8', '#6366f1'],
-  success: ['#34d399', '#10b981'],
-  warning: ['#fbbf24', '#f59e0b'],
-  danger: ['#f87171', '#ef4444']
-};
-
-// Type Distribution Chart (Doughnut)
-const typeData = <?= json_encode(array_map(fn($d) => $d['count'], $type_data)) ?>;
-const typeLabels = <?= json_encode(array_keys($type_data)) ?>;
-
-new Chart(document.getElementById('typeChart'), {
-  type: 'doughnut',
-  data: {
-    labels: typeLabels,
-    datasets: [{
-      data: typeData,
-      backgroundColor: [colors.primary, colors.success, colors.warning, colors.danger, colors.purple],
-      borderWidth: 0,
-      borderRadius: 8,
-      spacing: 4
-    }]
-  },
-  options: {
-    ...chartConfig,
-    cutout: '70%',
-    plugins: {
-      ...chartConfig.plugins,
-      tooltip: {
-        ...chartConfig.plugins.tooltip,
-        callbacks: {
-          label: (ctx) => ` ${ctx.label}: ${ctx.parsed} accounts`
-        }
-      }
-    }
-  }
-});
-
-// Currency Balance Chart (Bar)
-const currencyBalances = <?= json_encode(array_map(fn($d) => $d['balance'], $currency_data)) ?>;
-const currencyLabels = <?= json_encode(array_keys($currency_data)) ?>;
-
-new Chart(document.getElementById('currencyChart'), {
-  type: 'bar',
-  data: {
-    labels: currencyLabels,
-    datasets: [{
-      data: currencyBalances,
-      backgroundColor: colors.success,
-      borderRadius: 8,
-      barThickness: 40
-    }]
-  },
-  options: {
-    ...chartConfig,
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
-        ticks: { font: { size: 11 }, callback: val => val.toFixed(0) }
-      },
-      x: {
-        grid: { display: false, drawBorder: false },
-        ticks: { font: { size: 11 } }
-      }
-    }
-  }
-});
-
-// Status Chart (Pie)
-new Chart(document.getElementById('statusChart'), {
-  type: 'pie',
-  data: {
-    labels: ['Active', 'Inactive'],
-    datasets: [{
-      data: [<?= $active_accounts ?>, <?= $inactive_accounts ?>],
-      backgroundColor: [colors.success, colors.danger],
-      borderWidth: 0
-    }]
-  },
-  options: {
-    ...chartConfig,
-    plugins: {
-      ...chartConfig.plugins,
-      tooltip: {
-        ...chartConfig.plugins.tooltip,
-        callbacks: {
-          label: (ctx) => ` ${ctx.label}: ${ctx.parsed} accounts`
-        }
-      }
-    }
-  }
-});
-<?php endif; ?>
 </script>
 
 </body>

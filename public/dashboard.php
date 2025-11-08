@@ -1,7 +1,10 @@
 <?php
 // public/dashboard.php
+declare(strict_types=1);
+
 require __DIR__ . '/../config/env.php';
 require __DIR__ . '/../db/sqlite.php';
+require __DIR__ . '/../db/oracle.php'; // oracle_conn(): ?resource
 
 // ---- include the guard (path-safe) ----
 $guard1 = __DIR__ . '/../app/common/auth_guard.php';
@@ -22,11 +25,18 @@ if (file_exists($guard1)) {
     }
 }
 
+function h($x){ return htmlspecialchars((string)$x, ENT_QUOTES, 'UTF-8'); }
+function arr_keys_lower(array $row): array {
+    $o = [];
+    foreach ($row as $k=>$v) { $o[strtolower((string)$k)] = $v; }
+    return $o;
+}
+
 // ---- DB and user ----
 $pdo = sqlite();
 $uid = isset($_SESSION['uid']) ? (int)$_SESSION['uid'] : 0;
 
-// ---- Quick counts ----
+// ---- Quick counts (stay on SQLite; these are local objects) ----
 $acc = $pdo->prepare("SELECT COUNT(*) FROM ACCOUNTS_LOCAL WHERE user_local_id=?");
 $acc->execute([$uid]);
 $acc_count = (int)$acc->fetchColumn();
@@ -47,71 +57,206 @@ try {
     $txn_count = 0; 
 }
 
-// Get financial summary
-$summary = $pdo->prepare("
-  SELECT 
-    SUM(CASE WHEN txn_type='INCOME' THEN amount ELSE 0 END) as total_income,
-    SUM(CASE WHEN txn_type='EXPENSE' THEN amount ELSE 0 END) as total_expense
-  FROM TRANSACTIONS_LOCAL 
-  WHERE user_local_id=?
-");
-$summary->execute([$uid]);
-$fin = $summary->fetch(PDO::FETCH_ASSOC);
-$total_income = (float)($fin['total_income'] ?? 0);
-$total_expense = (float)($fin['total_expense'] ?? 0);
-$net_balance = $total_income - $total_expense;
+// ─────────────────────────────────────────────────────────────
+// ORACLE-FIRST ANALYSIS (summary, recent, monthly, categories, balances)
+// Falls back to SQLite if Oracle not available or not mapped
+// ─────────────────────────────────────────────────────────────
 
-// Get recent transactions
-$recent_txn = $pdo->prepare("
-  SELECT t.txn_type, t.amount, t.txn_date, c.category_name, a.account_name
-  FROM TRANSACTIONS_LOCAL t
-  LEFT JOIN CATEGORIES_LOCAL c ON t.category_local_id = c.local_category_id
-  LEFT JOIN ACCOUNTS_LOCAL a ON t.account_local_id = a.local_account_id
-  WHERE t.user_local_id = ?
-  ORDER BY t.txn_date DESC, t.local_txn_id DESC
-  LIMIT 5
-");
-$recent_txn->execute([$uid]);
-$recent_transactions = $recent_txn->fetchAll(PDO::FETCH_ASSOC);
+// 1) resolve server_user_id from USERS_LOCAL
+$mapStmt = $pdo->prepare("SELECT server_user_id FROM USERS_LOCAL WHERE local_user_id = ?");
+$mapStmt->execute([$uid]);
+$serverUid = (int)($mapStmt->fetchColumn() ?: 0);
 
-// Get monthly data for chart (last 6 months)
-$monthly = $pdo->prepare("
-  SELECT 
-    strftime('%Y-%m', txn_date) as month,
-    SUM(CASE WHEN txn_type='INCOME' THEN amount ELSE 0 END) as income,
-    SUM(CASE WHEN txn_type='EXPENSE' THEN amount ELSE 0 END) as expense
-  FROM TRANSACTIONS_LOCAL
-  WHERE user_local_id = ?
-  GROUP BY strftime('%Y-%m', txn_date)
-  ORDER BY month DESC
-  LIMIT 6
-");
-$monthly->execute([$uid]);
-$monthly_data = array_reverse($monthly->fetchAll(PDO::FETCH_ASSOC));
+// 2) try oracle
+$oconn = null;
+$use_oracle = false;
+if ($serverUid > 0) {
+    $oconn = @oracle_conn();
+    if ($oconn) {
+        $probe = @oci_parse($oconn, "SELECT 1 FROM DUAL");
+        if ($probe && @oci_execute($probe)) {
+            $use_oracle = true;
+        }
+    }
+}
 
-// Get category breakdown
-$cat_breakdown = $pdo->prepare("
-  SELECT c.category_name, c.category_type, SUM(t.amount) as total
-  FROM TRANSACTIONS_LOCAL t
-  JOIN CATEGORIES_LOCAL c ON t.category_local_id = c.local_category_id
-  WHERE t.user_local_id = ?
-  GROUP BY c.local_category_id
-  ORDER BY total DESC
-  LIMIT 5
-");
-$cat_breakdown->execute([$uid]);
-$top_categories = $cat_breakdown->fetchAll(PDO::FETCH_ASSOC);
+// -------------------- defaults --------------------
+$total_income   = 0.0;
+$total_expense  = 0.0;
+$net_balance    = 0.0;
+$recent_transactions = [];
+$monthly_data = [];
+$top_categories = [];
+$accounts = [];
 
-// ✅ Account balances (use live view)
-$acc_balances = $pdo->prepare("
-  SELECT account_name, current_balance, account_type
-  FROM V_ACCOUNT_BALANCES
-  WHERE user_local_id = ? AND is_active = 1
-  ORDER BY current_balance DESC
-  LIMIT 5
-");
-$acc_balances->execute([$uid]);
-$accounts = $acc_balances->fetchAll(PDO::FETCH_ASSOC);
+// -------------------- ORACLE path --------------------
+if ($use_oracle) {
+    // Summary
+    $sql = "
+      SELECT
+        NVL(SUM(CASE WHEN UPPER(txn_type)='INCOME'  THEN amount ELSE 0 END),0) AS total_income,
+        NVL(SUM(CASE WHEN UPPER(txn_type)='EXPENSE' THEN amount ELSE 0 END),0) AS total_expense
+      FROM TRANSACTIONS_CLOUD
+      WHERE user_server_id = :P_UID
+    ";
+    $st = oci_parse($oconn, $sql);
+    oci_bind_by_name($st, ':P_UID', $serverUid, -1, SQLT_INT);
+    oci_execute($st);
+    if ($row = oci_fetch_assoc($st)) {
+        $row = arr_keys_lower($row);
+        $total_income  = (float)$row['total_income'];
+        $total_expense = (float)$row['total_expense'];
+        $net_balance   = $total_income - $total_expense;
+    }
+
+    // Recent transactions (ensure string date)
+    $sql = "
+      SELECT
+        t.txn_type,
+        t.amount,
+        TO_CHAR(t.txn_date, 'YYYY-MM-DD') AS txn_date,
+        NVL(c.category_name,'Uncategorized') AS category_name,
+        NVL(a.account_name,'Unknown')       AS account_name
+      FROM TRANSACTIONS_CLOUD t
+      LEFT JOIN CATEGORIES_CLOUD c ON c.server_category_id = t.category_server_id
+      LEFT JOIN ACCOUNTS_CLOUD   a ON a.server_account_id  = t.account_server_id
+      WHERE t.user_server_id = :P_UID
+      ORDER BY t.txn_date DESC, t.server_txn_id DESC
+      FETCH FIRST 5 ROWS ONLY
+    ";
+    $st = oci_parse($oconn, $sql);
+    oci_bind_by_name($st, ':P_UID', $serverUid, -1, SQLT_INT);
+    oci_execute($st);
+    while ($r = oci_fetch_assoc($st)) { $recent_transactions[] = arr_keys_lower($r); }
+
+    // Monthly (last 6 months with data)
+    $sql = "
+      SELECT
+        TO_CHAR(t.txn_date,'YYYY-MM') AS month,
+        NVL(SUM(CASE WHEN UPPER(t.txn_type)='INCOME'  THEN t.amount ELSE 0 END),0) AS income,
+        NVL(SUM(CASE WHEN UPPER(t.txn_type)='EXPENSE' THEN t.amount ELSE 0 END),0) AS expense
+      FROM TRANSACTIONS_CLOUD t
+      WHERE t.user_server_id = :P_UID
+      GROUP BY TO_CHAR(t.txn_date,'YYYY-MM')
+      ORDER BY month DESC
+      FETCH FIRST 6 ROWS ONLY
+    ";
+    $st = oci_parse($oconn, $sql);
+    oci_bind_by_name($st, ':P_UID', $serverUid, -1, SQLT_INT);
+    oci_execute($st);
+    $tmp = [];
+    while ($r = oci_fetch_assoc($st)) { $tmp[] = arr_keys_lower($r); }
+    $monthly_data = array_reverse($tmp);
+
+    // Category breakdown (top 5 by sum)
+    $sql = "
+      SELECT
+        NVL(c.category_name,'Uncategorized') AS category_name,
+        NVL(SUM(t.amount),0)                 AS total
+      FROM TRANSACTIONS_CLOUD t
+      LEFT JOIN CATEGORIES_CLOUD c ON c.server_category_id = t.category_server_id
+      WHERE t.user_server_id = :P_UID
+      GROUP BY NVL(c.category_name,'Uncategorized')
+      ORDER BY total DESC
+      FETCH FIRST 5 ROWS ONLY
+    ";
+    $st = oci_parse($oconn, $sql);
+    oci_bind_by_name($st, ':P_UID', $serverUid, -1, SQLT_INT);
+    oci_execute($st);
+    while ($r = oci_fetch_assoc($st)) { $top_categories[] = arr_keys_lower($r); }
+
+    // Account balances (top 5)
+    $sql = "
+      SELECT
+        a.account_name,
+        a.account_type,
+        NVL(a.opening_balance,0)
+          + NVL(SUM(CASE WHEN UPPER(t.txn_type)='INCOME'  THEN t.amount
+                         WHEN UPPER(t.txn_type)='EXPENSE' THEN -t.amount
+                         ELSE 0 END),0) AS current_balance
+      FROM ACCOUNTS_CLOUD a
+      LEFT JOIN TRANSACTIONS_CLOUD t
+        ON t.account_server_id = a.server_account_id
+       AND t.user_server_id    = a.user_server_id
+      WHERE a.user_server_id = :P_UID
+        AND NVL(a.is_active,1) = 1
+      GROUP BY a.account_name, a.account_type, NVL(a.opening_balance,0)
+      ORDER BY current_balance DESC
+      FETCH FIRST 5 ROWS ONLY
+    ";
+    $st = oci_parse($oconn, $sql);
+    oci_bind_by_name($st, ':P_UID', $serverUid, -1, SQLT_INT);
+    oci_execute($st);
+    while ($r = oci_fetch_assoc($st)) { $accounts[] = arr_keys_lower($r); }
+
+} else {
+    // -------------------- SQLITE fallback (existing logic) --------------------
+    // Financial summary
+    $summary = $pdo->prepare("
+      SELECT 
+        SUM(CASE WHEN txn_type='INCOME' THEN amount ELSE 0 END) as total_income,
+        SUM(CASE WHEN txn_type='EXPENSE' THEN amount ELSE 0 END) as total_expense
+      FROM TRANSACTIONS_LOCAL 
+      WHERE user_local_id=?
+    ");
+    $summary->execute([$uid]);
+    $fin = $summary->fetch(PDO::FETCH_ASSOC);
+    $total_income = (float)($fin['total_income'] ?? 0);
+    $total_expense = (float)($fin['total_expense'] ?? 0);
+    $net_balance = $total_income - $total_expense;
+
+    // Recent transactions
+    $recent_txn = $pdo->prepare("
+      SELECT t.txn_type, t.amount, t.txn_date, c.category_name, a.account_name
+      FROM TRANSACTIONS_LOCAL t
+      LEFT JOIN CATEGORIES_LOCAL c ON t.category_local_id = c.local_category_id
+      LEFT JOIN ACCOUNTS_LOCAL a ON t.account_local_id = a.local_account_id
+      WHERE t.user_local_id = ?
+      ORDER BY t.txn_date DESC, t.local_txn_id DESC
+      LIMIT 5
+    ");
+    $recent_txn->execute([$uid]);
+    $recent_transactions = $recent_txn->fetchAll(PDO::FETCH_ASSOC);
+
+    // Monthly (last 6 months)
+    $monthly = $pdo->prepare("
+      SELECT 
+        strftime('%Y-%m', txn_date) as month,
+        SUM(CASE WHEN txn_type='INCOME' THEN amount ELSE 0 END) as income,
+        SUM(CASE WHEN txn_type='EXPENSE' THEN amount ELSE 0 END) as expense
+      FROM TRANSACTIONS_LOCAL
+      WHERE user_local_id = ?
+      GROUP BY strftime('%Y-%m', txn_date)
+      ORDER BY month DESC
+      LIMIT 6
+    ");
+    $monthly->execute([$uid]);
+    $monthly_data = array_reverse($monthly->fetchAll(PDO::FETCH_ASSOC));
+
+    // Category breakdown
+    $cat_breakdown = $pdo->prepare("
+      SELECT c.category_name, SUM(t.amount) as total
+      FROM TRANSACTIONS_LOCAL t
+      JOIN CATEGORIES_LOCAL c ON t.category_local_id = c.local_category_id
+      WHERE t.user_local_id = ?
+      GROUP BY c.local_category_id
+      ORDER BY total DESC
+      LIMIT 5
+    ");
+    $cat_breakdown->execute([$uid]);
+    $top_categories = $cat_breakdown->fetchAll(PDO::FETCH_ASSOC);
+
+    // Account balances via local view
+    $acc_balances = $pdo->prepare("
+      SELECT account_name, current_balance, account_type
+      FROM V_ACCOUNT_BALANCES
+      WHERE user_local_id = ? AND is_active = 1
+      ORDER BY current_balance DESC
+      LIMIT 5
+    ");
+    $acc_balances->execute([$uid]);
+    $accounts = $acc_balances->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -346,18 +491,18 @@ $accounts = $acc_balances->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <div class="card-body">
           <div class="transaction-list">
-            <?php foreach($recent_transactions as $txn): ?>
-            <div class="transaction-item <?= strtolower($txn['txn_type']) ?>">
+            <?php foreach($recent_transactions as $t): ?>
+            <div class="transaction-item <?= strtolower($t['txn_type']) ?>">
               <div class="txn-icon">
-                <i class="fas fa-<?= $txn['txn_type'] === 'INCOME' ? 'arrow-down' : 'arrow-up' ?>"></i>
+                <i class="fas fa-<?= strtoupper($t['txn_type']) === 'INCOME' ? 'arrow-down' : 'arrow-up' ?>"></i>
               </div>
               <div class="txn-details">
-                <span class="txn-category"><?= htmlspecialchars($txn['category_name'] ?? 'Uncategorized') ?></span>
-                <span class="txn-account"><?= htmlspecialchars($txn['account_name'] ?? 'Unknown') ?></span>
+                <span class="txn-category"><?= h($t['category_name'] ?? 'Uncategorized') ?></span>
+                <span class="txn-account"><?= h($t['account_name'] ?? 'Unknown') ?></span>
               </div>
               <div class="txn-right">
-                <span class="txn-amount"><?= number_format((float)$txn['amount'], 2) ?></span>
-                <span class="txn-date"><?= date('M d', strtotime($txn['txn_date'])) ?></span>
+                <span class="txn-amount"><?= number_format((float)$t['amount'], 2) ?></span>
+                <span class="txn-date"><?= date('M d', strtotime((string)$t['txn_date'])) ?></span>
               </div>
             </div>
             <?php endforeach; ?>
@@ -366,7 +511,7 @@ $accounts = $acc_balances->fetchAll(PDO::FETCH_ASSOC);
       </div>
       <?php endif; ?>
 
-      <!-- ✅ Account Balances (live) -->
+      <!-- Account Balances -->
       <?php if (!empty($accounts)): ?>
       <div class="dashboard-card">
         <div class="card-header">
@@ -381,20 +526,19 @@ $accounts = $acc_balances->fetchAll(PDO::FETCH_ASSOC);
             <div class="account-item">
               <div class="acc-icon">
                 <?php
-                  // Map your account types to icons
                   $icon = 'wallet';
-                  if ($acc['account_type'] === 'BANK')   $icon = 'building-columns';
-                  if ($acc['account_type'] === 'CARD')   $icon = 'credit-card';
-                  if ($acc['account_type'] === 'CASH')   $icon = 'money-bill-wave';
-                  if ($acc['account_type'] === 'MOBILE') $icon = 'mobile-screen';
+                  $t = strtoupper((string)($acc['account_type'] ?? ''));
+                  if ($t === 'BANK')   $icon = 'building-columns';
+                  if ($t === 'CARD')   $icon = 'credit-card';
+                  if ($t === 'CASH')   $icon = 'money-bill-wave';
+                  if ($t === 'MOBILE') $icon = 'mobile-screen';
                 ?>
                 <i class="fas fa-<?= $icon ?>"></i>
               </div>
               <div class="acc-details">
-                <span class="acc-name"><?= htmlspecialchars($acc['account_name']) ?></span>
-                <span class="acc-type"><?= htmlspecialchars($acc['account_type']) ?></span>
+                <span class="acc-name"><?= h($acc['account_name']) ?></span>
+                <span class="acc-type"><?= h($acc['account_type'] ?? '') ?></span>
               </div>
-              <!-- show current balance from the view -->
               <span class="acc-balance"><?= number_format((float)$acc['current_balance'], 2) ?></span>
             </div>
             <?php endforeach; ?>
@@ -447,7 +591,7 @@ $accounts = $acc_balances->fetchAll(PDO::FETCH_ASSOC);
               <svg width="120" height="120">
                 <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" stroke-width="8"/>
                 <circle cx="60" cy="60" r="54" fill="none" stroke="url(#gradient)" stroke-width="8" 
-                        stroke-dasharray="339.292" stroke-dashoffset="<?= 339.292 * (1 - min(1, max(0, $net_balance / ($total_income > 0 ? $total_income : 1)))) ?>" 
+                        stroke-dasharray="339.292" stroke-dashoffset="<?= 339.292 * (1 - min(1, max(0, $total_income > 0 ? ($net_balance / $total_income) : 0))) ?>" 
                         stroke-linecap="round" transform="rotate(-90 60 60)"/>
                 <defs>
                   <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -484,10 +628,10 @@ $accounts = $acc_balances->fetchAll(PDO::FETCH_ASSOC);
 <?php if (!empty($monthly_data)): ?>
 // Income vs Expense Chart
 const monthlyLabels = <?= json_encode(array_map(function($d) { 
-  return date('M Y', strtotime($d['month'] . '-01')); 
+  return date('M Y', strtotime(($d['month'] ?? '') . '-01')); 
 }, $monthly_data)) ?>;
-const incomeData = <?= json_encode(array_column($monthly_data, 'income')) ?>;
-const expenseData = <?= json_encode(array_column($monthly_data, 'expense')) ?>;
+const incomeData = <?= json_encode(array_map(fn($d)=>(float)$d['income'], $monthly_data)) ?>;
+const expenseData = <?= json_encode(array_map(fn($d)=>(float)$d['expense'], $monthly_data)) ?>;
 
 new Chart(document.getElementById('incomeExpenseChart'), {
   type: 'line',
@@ -549,8 +693,8 @@ new Chart(document.getElementById('incomeExpenseChart'), {
 
 <?php if (!empty($top_categories)): ?>
 // Category Chart
-const categoryLabels = <?= json_encode(array_column($top_categories, 'category_name')) ?>;
-const categoryData = <?= json_encode(array_column($top_categories, 'total')) ?>;
+const categoryLabels = <?= json_encode(array_map(fn($r)=>$r['category_name'], $top_categories)) ?>;
+const categoryData = <?= json_encode(array_map(fn($r)=>(float)$r['total'], $top_categories)) ?>;
 const categoryColors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 new Chart(document.getElementById('categoryChart'), {
