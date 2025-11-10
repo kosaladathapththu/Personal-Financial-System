@@ -9,9 +9,7 @@ require __DIR__ . '/../auth/common/auth_guard.php';
 
 function h($x){ return htmlspecialchars((string)$x, ENT_QUOTES, 'UTF-8'); }
 
-/* ────────────────────────────────────────────────────────────────────────────
-   DATE HELPERS  (Oracle expects DD-MM-YYYY; <input type="date"> is YYYY-MM-DD)
-   ──────────────────────────────────────────────────────────────────────────── */
+
 function norm_date(string $s, string $fallback): string {
     $s = trim($s);
     if ($s === '') return $fallback;
@@ -76,10 +74,9 @@ function db_query(array $db, string $sql, array $binds = []): array {
                 oci_bind_by_name($stmt, $name, $bindStore[$name], 10, SQLT_CHR);
             } elseif (is_int($v)) {
                 $bindStore[$name] = (int)$v; oci_bind_by_name($stmt, $name, $bindStore[$name], -1, SQLT_INT);
-            } elseif (is_float($v)) {
-                $bindStore[$name] = (float)$v; oci_bind_by_name($stmt, $name, $bindStore[$name], -1, SQLT_FLT);
             } else {
-                $bindStore[$name] = trim((string)$v); oci_bind_by_name($stmt, $name, $bindStore[$name]);
+                // default to string
+                $bindStore[$name] = trim((string)$v); oci_bind_by_name($stmt, $name, $bindStore[$name], -1, SQLT_CHR);
             }
         }
 
@@ -135,82 +132,162 @@ if (!$db) { $db = use_sqlite(); }
 /* ────────────────────────────────────────────────────────────────────────────
    QUERIES — always filtered to the logged user
    ──────────────────────────────────────────────────────────────────────────── */
-$txns = []; $accounts = $overall = [];
+$txns = []; $accounts = [];
+$ov = [
+  'CNT'=>0, 'INCOME'=>0.0, 'EXPENSE'=>0.0, 'NET'=>0.0, 'TOTAL_BAL'=>0.0,
+  'FIRST_TXN'=>'', 'LAST_TXN'=>''
+];
 
 if ($db['type'] === 'oracle' && $serverUid > 0) {
-    $B = ['P_FROM'=>$from, 'P_TO'=>$to, 'P_UID'=>$serverUid];
+    $P_UID  = $serverUid;
+    $P_FROM = $from; // DD-MM-YYYY
+    $P_TO   = $to;   // DD-MM-YYYY
 
-    // OVERALL (normalize/trim type + friendly dates)
-    $SQL_OVERALL = "
+    /* ----------------------------------------------------------------------
+       OVERALL SUMMARY — call PR_OVERALL_SUMMARY (with VARCHAR2 outs)
+       Bind NUMBER outs as CHAR to avoid SQLT_FLT issues on some builds.
+       ---------------------------------------------------------------------- */
+    $plsql = "BEGIN
+      PR_OVERALL_SUMMARY(
+        :P_UID,
+        TO_DATE(:P_FROM,'DD-MM-YYYY'),
+        TO_DATE(:P_TO,  'DD-MM-YYYY'),
+        :O_CNT,
+        :O_INC,
+        :O_EXP,
+        :O_NET,
+        :O_TBAL,
+        :O_FIRST,
+        :O_LAST
+      );
+    END;";
+
+    $stmt = oci_parse($db['conn'], $plsql);
+    if (!$stmt) { $e=oci_error($db['conn']); throw new RuntimeException("Oracle parse error: ".($e['message']??'unknown')); }
+
+    // IN binds
+    oci_bind_by_name($stmt, ':P_UID',  $P_UID, -1, SQLT_INT);
+    oci_bind_by_name($stmt, ':P_FROM', $P_FROM, 10, SQLT_CHR);
+    oci_bind_by_name($stmt, ':P_TO',   $P_TO,   10, SQLT_CHR);
+
+    // OUT binds
+    $O_CNT  = 0;                oci_bind_by_name($stmt, ':O_CNT',  $O_CNT,  -1, SQLT_INT);
+    $O_INC  = str_repeat(' ', 64);
+    $O_EXP  = str_repeat(' ', 64);
+    $O_NET  = str_repeat(' ', 64);
+    $O_TBAL = str_repeat(' ', 64);
+    oci_bind_by_name($stmt, ':O_INC',  $O_INC,  64, SQLT_CHR);
+    oci_bind_by_name($stmt, ':O_EXP',  $O_EXP,  64, SQLT_CHR);
+    oci_bind_by_name($stmt, ':O_NET',  $O_NET,  64, SQLT_CHR);
+    oci_bind_by_name($stmt, ':O_TBAL', $O_TBAL, 64, SQLT_CHR);
+
+    $O_FIRST = str_repeat(' ', 64);
+    $O_LAST  = str_repeat(' ', 64);
+    oci_bind_by_name($stmt, ':O_FIRST', $O_FIRST, 64, SQLT_CHR);
+    oci_bind_by_name($stmt, ':O_LAST',  $O_LAST,  64, SQLT_CHR);
+
+    if (!oci_execute($stmt)) {
+        $e = oci_error($stmt);
+        throw new RuntimeException("Oracle execute error (PR_OVERALL_SUMMARY): ".($e['message']??'unknown'));
+    }
+
+    // Trim & cast
+    $O_FIRST = trim($O_FIRST);
+    $O_LAST  = trim($O_LAST);
+    $ov = [
+      'CNT'       => (int)$O_CNT,
+      'INCOME'    => (float)trim($O_INC),
+      'EXPENSE'   => (float)trim($O_EXP),
+      'NET'       => (float)trim($O_NET),
+      'TOTAL_BAL' => (float)trim($O_TBAL),
+      'FIRST_TXN' => $O_FIRST,
+      'LAST_TXN'  => $O_LAST,
+    ];
+
+    // ====== ACCOUNTS (prefer MV, fallback to base calc) ======
+    $Bmv = ['P_UID'=>$P_UID, 'P_FROM'=>$P_FROM, 'P_TO'=>$P_TO];
+
+    $SQL_ACCOUNTS_MV = "
         SELECT
-          COUNT(t.server_txn_id) AS CNT,
-          NVL(SUM(CASE WHEN TRIM(UPPER(t.txn_type))='INCOME'  THEN t.amount ELSE 0 END),0) AS INCOME,
-          NVL(SUM(CASE WHEN TRIM(UPPER(t.txn_type))='EXPENSE' THEN t.amount ELSE 0 END),0) AS EXPENSE,
-          TO_CHAR(MIN(t.txn_date),'DD-MON-YY') AS FIRST_TXN,
-          TO_CHAR(MAX(t.txn_date),'DD-MON-YY') AS LAST_TXN
-        FROM TRANSACTIONS_CLOUD t
-        WHERE t.user_server_id = :P_UID
-          AND t.txn_date >= TO_DATE(:P_FROM,'DD-MM-YYYY')
-          AND t.txn_date <  TO_DATE(:P_TO,'DD-MM-YYYY') + 1
+          account_name                                 AS ACCOUNT_NAME,
+          NVL(opening_balance,0)                       AS OPENING_BALANCE,
+          NVL(total_income,0)                          AS INC_AMT,
+          NVL(total_expense,0)                         AS EXP_AMT,
+          NVL(balance,0)                               AS BAL
+        FROM MV_ACCOUNT_SUMMARY
+        WHERE user_server_id = :P_UID
+        ORDER BY account_name
     ";
 
-    // ACCOUNTS (include zero-activity accounts in range)
-    $SQL_ACCOUNTS = "
-        SELECT
-          NVL(a.account_name,'(Unknown)')            AS ACCOUNT_NAME,
-          NVL(a.opening_balance,0)                   AS OPENING_BALANCE,
-          NVL(SUM(CASE WHEN TRIM(UPPER(t.txn_type))='INCOME'  THEN t.amount ELSE 0 END),0)  AS INC_AMT,
-          NVL(SUM(CASE WHEN TRIM(UPPER(t.txn_type))='EXPENSE' THEN t.amount ELSE 0 END),0)  AS EXP_AMT
-        FROM TRANSACTIONS_CLOUD t
-        LEFT JOIN ACCOUNTS_CLOUD a
-          ON a.server_account_id = t.account_server_id
-         AND a.user_server_id    = t.user_server_id
-        WHERE t.user_server_id = :P_UID
-          AND t.txn_date >= TO_DATE(:P_FROM,'DD-MM-YYYY')
-          AND t.txn_date <  TO_DATE(:P_TO,'DD-MM-YYYY') + 1
-        GROUP BY NVL(a.account_name,'(Unknown)'), NVL(a.opening_balance,0)
-        UNION ALL
-        SELECT
-          a.account_name,
-          NVL(a.opening_balance,0),
-          0 AS INC_AMT,
-          0 AS EXP_AMT
-        FROM ACCOUNTS_CLOUD a
-        WHERE a.user_server_id = :P_UID
-          AND NOT EXISTS (
-            SELECT 1 FROM TRANSACTIONS_CLOUD t
-            WHERE t.user_server_id = a.user_server_id
-              AND t.account_server_id = a.server_account_id
-              AND t.txn_date >= TO_DATE(:P_FROM,'DD-MM-YYYY')
-              AND t.txn_date <  TO_DATE(:P_TO,'DD-MM-YYYY') + 1
+    try {
+        $accounts = db_query($db, $SQL_ACCOUNTS_MV, $Bmv);
+    } catch (Throwable $e) {
+        $SQL_ACCOUNTS_FB = "
+          WITH TX AS (
+            SELECT a.server_account_id, a.account_name, a.opening_balance,
+                   t.amount, TRIM(UPPER(t.txn_type)) txn_type
+            FROM ACCOUNTS_CLOUD a
+            LEFT JOIN TRANSACTIONS_CLOUD t
+              ON t.account_server_id = a.server_account_id
+             AND t.user_server_id    = a.user_server_id
+             AND t.txn_date >= TO_DATE(:P_FROM,'DD-MM-YYYY')
+             AND t.txn_date <  TO_DATE(:P_TO,'DD-MM-YYYY') + 1
+            WHERE a.user_server_id = :P_UID
           )
-        ORDER BY ACCOUNT_NAME
-    ";
+          SELECT
+            account_name AS ACCOUNT_NAME,
+            NVL(opening_balance,0) AS OPENING_BALANCE,
+            NVL(SUM(CASE WHEN txn_type='INCOME'  THEN amount END),0) AS INC_AMT,
+            NVL(SUM(CASE WHEN txn_type='EXPENSE' THEN amount END),0) AS EXP_AMT,
+            NVL(opening_balance,0)
+              + NVL(SUM(CASE WHEN txn_type='INCOME'  THEN amount END),0)
+              - NVL(SUM(CASE WHEN txn_type='EXPENSE' THEN amount END),0) AS BAL
+          FROM TX
+          GROUP BY account_name, opening_balance
+          ORDER BY account_name
+        ";
+        $accounts = db_query($db, $SQL_ACCOUNTS_FB, $Bmv);
+    }
 
-    // ALL TRANSACTIONS (this user only)
-    $SQL_TXNS = "
+    // ====== TRANSACTIONS (prefer MV, fallback to base tables) ======
+    $SQL_TXNS_MV = "
         SELECT
-          t.server_txn_id,
-          t.client_txn_uuid,
-          t.user_server_id,
-          TO_CHAR(t.txn_date,'YYYY-MM-DD') AS TXN_DATE,
-          TRIM(UPPER(t.txn_type)) AS TXN_TYPE,
-          t.amount,
-          t.note,
-          NVL(a.account_name,'Unknown')        AS account_name,
-          NVL(c.category_name,'Uncategorized') AS category_name
-        FROM TRANSACTIONS_CLOUD t
-        LEFT JOIN ACCOUNTS_CLOUD a   ON a.server_account_id   = t.account_server_id
-        LEFT JOIN CATEGORIES_CLOUD c ON c.server_category_id  = t.category_server_id
-        WHERE t.user_server_id = :P_UID
-          AND t.txn_date >= TO_DATE(:P_FROM,'DD-MM-YYYY')
-          AND t.txn_date <  TO_DATE(:P_TO,'DD-MM-YYYY') + 1
-        ORDER BY t.txn_date DESC, t.server_txn_id DESC
+          TO_CHAR(txn_date,'YYYY-MM-DD')               AS TXN_DATE,
+          txn_type                                     AS TXN_TYPE,
+          amount,
+          account_name,
+          category_name,
+          note,
+          running_balance
+        FROM MV_TXN_MINIMAL
+        WHERE user_server_id = :P_UID
+          AND txn_date >= TO_DATE(:P_FROM,'DD-MM-YYYY')
+          AND txn_date <  TO_DATE(:P_TO,'DD-MM-YYYY') + 1
+        ORDER BY txn_date DESC, server_txn_id DESC
     ";
 
-    $overall  = db_query($db, $SQL_OVERALL,  $B);
-    $accounts = db_query($db, $SQL_ACCOUNTS, $B);
-    $txns     = db_query($db, $SQL_TXNS,     $B);
+    try {
+        $txns = db_query($db, $SQL_TXNS_MV, $Bmv);
+    } catch (Throwable $e) {
+        $SQL_TXNS_FB = "
+          SELECT
+            TO_CHAR(t.txn_date,'YYYY-MM-DD') AS TXN_DATE,
+            TRIM(UPPER(t.txn_type))          AS TXN_TYPE,
+            t.amount,
+            COALESCE(a.account_name,'Unknown')        AS account_name,
+            COALESCE(c.category_name,'Uncategorized') AS category_name,
+            t.note,
+            CAST(NULL AS NUMBER) AS running_balance
+          FROM TRANSACTIONS_CLOUD t
+          LEFT JOIN ACCOUNTS_CLOUD a   ON a.server_account_id   = t.account_server_id
+          LEFT JOIN CATEGORIES_CLOUD c ON c.server_category_id  = t.category_server_id
+          WHERE t.user_server_id = :P_UID
+            AND t.txn_date >= TO_DATE(:P_FROM,'DD-MM-YYYY')
+            AND t.txn_date <  TO_DATE(:P_TO,'DD-MM-YYYY') + 1
+          ORDER BY t.txn_date DESC, t.server_txn_id DESC
+        ";
+        $txns = db_query($db, $SQL_TXNS_FB, $Bmv);
+    }
 
 } else {
     // SQLITE FALLBACK (uses local ids)
@@ -228,7 +305,9 @@ if ($db['type'] === 'oracle' && $serverUid > 0) {
           AND date(substr(t.txn_date,1,10)) >= date(:P_FROM)
           AND date(substr(t.txn_date,1,10)) <  date(:P_TO1)
     ";
+    $overallRows = db_query($db, $SQL_OVERALL,  $B);
 
+    // Accounts + totals
     $SQL_ACCOUNTS = "
         SELECT
           IFNULL(a.account_name,'(Unknown)') AS ACCOUNT_NAME,
@@ -281,31 +360,39 @@ if ($db['type'] === 'oracle' && $serverUid > 0) {
         ORDER BY TXN_DATE DESC, server_txn_id DESC
     ";
 
-    $overall  = db_query($db, $SQL_OVERALL,  $B);
     $accounts = db_query($db, $SQL_ACCOUNTS, $B);
     $txns     = db_query($db, $SQL_TXNS,     $B);
+
+    $inc = (float)($overallRows[0]['INCOME'] ?? 0);
+    $exp = (float)($overallRows[0]['EXPENSE'] ?? 0);
+
+    $ov = [
+      'CNT'       => (int)($overallRows[0]['CNT'] ?? 0),
+      'INCOME'    => $inc,
+      'EXPENSE'   => $exp,
+      'NET'       => $inc - $exp,
+      'TOTAL_BAL' => 0.0, // set after summing openings
+      'FIRST_TXN' => (string)($overallRows[0]['FIRST_TXN'] ?? ''),
+      'LAST_TXN'  => (string)($overallRows[0]['LAST_TXN'] ?? ''),
+    ];
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
-   TOTALS (+ Total Balance across all accounts in the period)
+   TOTALS (+ Total Balance across all accounts)
    ──────────────────────────────────────────────────────────────────────────── */
 $totOpen=$totInc=$totExp=$totBal=0.0;
 foreach ($accounts as $r) {
     $open=(float)($r['OPENING_BALANCE']??0);
     $inc =(float)($r['INC_AMT']??0);
     $exp =(float)($r['EXP_AMT']??0);
-    $bal =$open+$inc-$exp;
+    $bal = isset($r['BAL']) ? (float)$r['BAL'] : ($open+$inc-$exp);
     $totOpen+=$open; $totInc+=$inc; $totExp+=$exp; $totBal+=$bal;
 }
-$ov = [
-  'CNT'       => (int)($overall[0]['CNT'] ?? 0),
-  'INCOME'    => (float)($overall[0]['INCOME'] ?? 0),
-  'EXPENSE'   => (float)($overall[0]['EXPENSE'] ?? 0),
-  'FIRST_TXN' => (string)($overall[0]['FIRST_TXN'] ?? ''),
-  'LAST_TXN'  => (string)($overall[0]['LAST_TXN'] ?? ''),
-];
+if ($ov['TOTAL_BAL'] == 0.0 && $db['type'] !== 'oracle') {
+    $ov['TOTAL_BAL'] = $totOpen + ($ov['INCOME'] - $ov['EXPENSE']);
+}
 
-// HTML date inputs
+// HTML date inputs (for form)
 $from_html = ddmmyyyy_to_ymd($from);
 $to_html   = ddmmyyyy_to_ymd($to);
 ?>
@@ -405,16 +492,21 @@ $to_html   = ddmmyyyy_to_ymd($to);
         <div class="report-title"><i class="fas fa-chart-line" style="color:#667eea"></i>&nbsp;Overall Summary</div>
       </div>
       <div class="stats-grid">
-        <div class="stat"><div class="label">Total Transactions</div><div class="value"><?= number_format($ov['CNT']) ?></div></div>
-        <div class="stat"><div class="label">Total Income</div><div class="value" style="color:#059669">$<?= number_format($ov['INCOME'],2) ?></div></div>
-        <div class="stat"><div class="label">Total Expense</div><div class="value" style="color:#dc2626">$<?= number_format($ov['EXPENSE'],2) ?></div></div>
-        <?php $net = $ov['INCOME']-$ov['EXPENSE']; ?>
-        <div class="stat"><div class="label">Net Amount</div><div class="value" style="color:<?= $net>=0?'#059669':'#dc2626' ?>">$<?= number_format($net,2) ?></div></div>
-        <div class="stat"><div class="label">Total Balance (Opening + Net)</div><div class="value" style="color:<?= ($net+$totOpen)>=0?'#059669':'#dc2626' ?>">$<?= number_format($totOpen + $net,2) ?></div></div>
+        <div class="stat"><div class="label">Total Transactions</div><div class="value"><?= number_format((int)$ov['CNT']) ?></div></div>
+        <div class="stat"><div class="label">Total Income</div><div class="value" style="color:#059669">$<?= number_format((float)$ov['INCOME'],2) ?></div></div>
+        <div class="stat"><div class="label">Total Expense</div><div class="value" style="color:#dc2626">$<?= number_format((float)$ov['EXPENSE'],2) ?></div></div>
+        <div class="stat">
+          <div class="label">Net Amount</div>
+          <div class="value" style="color:<?= ((float)$ov['NET'])>=0?'#059669':'#dc2626' ?>">$<?= number_format((float)$ov['NET'],2) ?></div>
+        </div>
+        <div class="stat">
+          <div class="label">Total Balance (Opening + Net)</div>
+          <div class="value" style="color:<?= ((float)$ov['TOTAL_BAL'])>=0?'#059669':'#dc2626' ?>">$<?= number_format((float)$ov['TOTAL_BAL'],2) ?></div>
+        </div>
       </div>
       <table class="data-table">
         <thead><tr><th>First Transaction</th><th>Last Transaction</th></tr></thead>
-        <tbody><tr><td><?= h($ov['FIRST_TXN']) ?: 'N/A' ?></td><td><?= h($ov['LAST_TXN']) ?: 'N/A' ?></td></tr></tbody>
+        <tbody><tr><td><?= h((string)$ov['FIRST_TXN']) ?: 'N/A' ?></td><td><?= h((string)$ov['LAST_TXN']) ?: 'N/A' ?></td></tr></tbody>
       </table>
     </div>
 
@@ -434,7 +526,7 @@ $to_html   = ddmmyyyy_to_ymd($to);
             $open=(float)($a['OPENING_BALANCE']??0);
             $inc =(float)($a['INC_AMT']??0);
             $exp =(float)($a['EXP_AMT']??0);
-            $bal =$open+$inc-$exp;
+            $bal = isset($a['BAL']) ? (float)$a['BAL'] : ($open+$inc-$exp);
           ?>
           <tr>
             <td><strong><?= h((string)($a['ACCOUNT_NAME'] ?? 'Unknown')) ?></strong></td>
@@ -458,7 +550,7 @@ $to_html   = ddmmyyyy_to_ymd($to);
       <?php endif; ?>
     </div>
 
-    <!-- All Transactions (no other users visible) -->
+    <!-- All Transactions -->
     <div class="report-card">
       <div class="report-header">
         <div class="report-title"><i class="fas fa-receipt" style="color:#667eea"></i>&nbsp;All My Transactions (<?= count($txns) ?>)</div>
@@ -468,7 +560,7 @@ $to_html   = ddmmyyyy_to_ymd($to);
         <div class="empty"><i class="fas fa-inbox"></i><p>No transactions for this period.</p></div>
       <?php else: ?>
       <table class="data-table">
-        <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Account</th><th>Category</th><th>Note</th><th>UUID</th></tr></thead>
+        <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Account</th><th>Category</th><th>Note</th><th>Balance</th></tr></thead>
         <tbody>
           <?php foreach ($txns as $t): ?>
           <tr>
@@ -478,7 +570,7 @@ $to_html   = ddmmyyyy_to_ymd($to);
             <td><?= h($t['ACCOUNT_NAME']) ?></td>
             <td><?= h($t['CATEGORY_NAME']) ?></td>
             <td><?= h((string)($t['NOTE'] ?? '')) ?></td>
-            <td style="font-family:monospace"><?= h((string)$t['CLIENT_TXN_UUID']) ?></td>
+            <td><strong>$<?= number_format((float)($t['RUNNING_BALANCE'] ?? 0),2) ?></strong></td>
           </tr>
           <?php endforeach; ?>
         </tbody>
@@ -504,22 +596,22 @@ $to_html   = ddmmyyyy_to_ymd($to);
 // Summary CSV / PDF
 function downloadReport(format='csv'){
   if(format==='csv'){
-    let csv = 'PFMS My Financial Report\n';
-    csv += 'Generated,' + new Date().toLocaleString() + '\n';
-    csv += 'Period,<?= h($from) ?> to <?= h($to) ?>\n';
-    csv += 'Database,<?= $db['type'] ?>\n\n';
-    csv += 'OVERALL SUMMARY\n';
-    csv += 'Total Transactions,Income,Expense,Net,Opening,Total Balance\n';
-    csv += '<?= $ov['CNT'] ?>,<?= number_format($ov['INCOME'],2) ?>,<?= number_format($ov['EXPENSE'],2) ?>,<?= number_format($ov['INCOME']-$ov['EXPENSE'],2) ?>,<?= number_format($totOpen,2) ?>,<?= number_format($totOpen + ($ov['INCOME']-$ov['EXPENSE']),2) ?>\n\n';
-    csv += 'ACCOUNT BALANCE\n';
-    csv += 'Account,Opening,Income,Expense,Balance\n';
+    let csv = 'PFMS My Financial Report\\n';
+    csv += 'Generated,' + new Date().toLocaleString() + '\\n';
+    csv += 'Period,<?= h($from) ?> to <?= h($to) ?>\\n';
+    csv += 'Database,<?= $db['type'] ?>\\n\\n';
+    csv += 'OVERALL SUMMARY\\n';
+    csv += 'Total Transactions,Income,Expense,Net,Total Balance\\n';
+    csv += '<?= number_format((int)$ov['CNT']) ?>,<?= number_format((float)$ov['INCOME'],2) ?>,<?= number_format((float)$ov['EXPENSE'],2) ?>,<?= number_format((float)$ov['NET'],2) ?>,<?= number_format((float)$ov['TOTAL_BAL'],2) ?>\\n\\n';
+    csv += 'ACCOUNT BALANCE\\n';
+    csv += 'Account,Opening,Income,Expense,Balance\\n';
     <?php foreach ($accounts as $a):
       $open=(float)($a['OPENING_BALANCE']??0);
       $inc =(float)($a['INC_AMT']??0);
       $exp =(float)($a['EXP_AMT']??0);
-      $bal =$open+$inc-$exp;
+      $bal = isset($a['BAL']) ? (float)$a['BAL'] : ($open+$inc-$exp);
     ?>
-      csv += '<?= h((string)($a['ACCOUNT_NAME'] ?? 'Unknown')) ?>,<?= number_format($open,2) ?>,<?= number_format($inc,2) ?>,<?= number_format($exp,2) ?>,<?= number_format($bal,2) ?>\n';
+      csv += '<?= str_replace([",","\r","\n"],[";"," "," "], (string)($a['ACCOUNT_NAME'] ?? "Unknown")) ?>,<?= number_format($open,2) ?>,<?= number_format($inc,2) ?>,<?= number_format($exp,2) ?>,<?= number_format($bal,2) ?>\\n';
     <?php endforeach; ?>
     const blob = new Blob([csv],{type:'text/csv'}), url=URL.createObjectURL(blob), a=document.createElement('a');
     a.href=url; a.download='PFMS_My_Report_<?= date('Ymd') ?>.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
@@ -531,11 +623,11 @@ function downloadReport(format='csv'){
 
 // Transactions CSV
 function downloadTxnsCsv(){
-  let csv = 'Date,Type,Amount,Account,Category,Note,UUID\n';
+  let csv = 'Date,Type,Amount,Account,Category,Note,Balance\\n';
   <?php foreach ($txns as $t):
     $note = str_replace(["\r","\n",","],[" "," ",";"], (string)($t['NOTE'] ?? ''));
   ?>
-    csv += '<?= h($t['TXN_DATE']) ?>,<?= h($t['TXN_TYPE']) ?>,<?= number_format((float)$t['AMOUNT'],2) ?>,<?= h($t['ACCOUNT_NAME']) ?>,<?= h($t['CATEGORY_NAME']) ?>,<?= $note ?>,<?= h((string)$t['CLIENT_TXN_UUID']) ?>\n';
+    csv += '<?= h($t['TXN_DATE']) ?>,<?= h($t['TXN_TYPE']) ?>,<?= number_format((float)$t['AMOUNT'],2) ?>,<?= str_replace([",","\r","\n"],[";"," "," "],(string)$t['ACCOUNT_NAME']) ?>,<?= str_replace([",","\r","\n"],[";"," "," "],(string)$t['CATEGORY_NAME']) ?>,<?= $note ?>,<?= number_format((float)($t['RUNNING_BALANCE'] ?? 0),2) ?>\\n';
   <?php endforeach; ?>
   const blob = new Blob([csv],{type:'text/csv'}), url=URL.createObjectURL(blob), a=document.createElement('a');
   a.href=url; a.download='PFMS_My_Transactions_<?= date('Ymd') ?>.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
