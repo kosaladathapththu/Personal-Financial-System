@@ -1202,3 +1202,169 @@
 [2025-11-09 03:34:04] Repaired category map 'Entertainment' → 163
 [2025-11-09 03:34:04] Transactions synced: 1
 [2025-11-09 03:34:04] === SYNC DONE: A=0 C=1 T=1 ===
+[2025-11-09 19:58:25] 
+────────────────────────────────────────────
+[2025-11-09 19:58:25] SyncManager constructed (local_user_id=2)
+[2025-11-09 19:58:25] Local user already linked to server_user_id=1
+[2025-11-09 19:58:25] Linked server_user_id=1
+[2025-11-09 19:58:25] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-09 19:58:25] Accounts synced: 0
+[2025-11-09 19:58:25] Categories synced: 0
+[2025-11-09 19:58:25] Transactions synced: 1
+[2025-11-09 19:58:25] === SYNC DONE: A=0 C=0 T=1 ===
+[2025-11-09 20:08:44] 
+────────────────────────────────────────────
+[2025-11-09 20:08:44] SyncManager constructed (local_user_id=2)
+[2025-11-09 20:08:44] Local user already linked to server_user_id=1
+[2025-11-09 20:08:44] Linked server_user_id=1
+[2025-11-09 20:08:44] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-09 20:08:44] Accounts synced: 0
+[2025-11-09 20:08:44] Categories synced: 0
+[2025-11-09 20:08:44] Transactions synced: 0
+[2025-11-09 20:08:44] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-09 21:04:00] 
+────────────────────────────────────────────
+[2025-11-09 21:04:00] SyncManager constructed (local_user_id=2)
+[2025-11-09 21:04:00] Local user already linked to server_user_id=1
+[2025-11-09 21:04:00] Linked server_user_id=1
+[2025-11-09 21:04:00] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-09 21:04:00] Accounts synced: 0
+[2025-11-09 21:04:00] Categories synced: 0
+[2025-11-09 21:04:00] Transactions synced: 0
+[2025-11-09 21:04:00] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-10 14:17:52] 
+────────────────────────────────────────────
+[2025-11-10 14:17:52] SyncManager constructed (local_user_id=2)
+[2025-11-10 14:17:52] Local user already linked to server_user_id=1
+[2025-11-10 14:17:52] Linked server_user_id=1
+[2025-11-10 14:17:52] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 14:17:52] Accounts synced: 0
+[2025-11-10 14:17:52] Categories synced: 0
+[2025-11-10 14:17:52] Transactions synced: 0
+[2025-11-10 14:17:52] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-10 14:44:55] 
+────────────────────────────────────────────
+[2025-11-10 14:44:55] SyncManager constructed (local_user_id=2)
+[2025-11-10 14:44:55] Local user already linked to server_user_id=1
+[2025-11-10 14:44:55] Linked server_user_id=1
+[2025-11-10 14:44:55] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 14:44:55] Accounts synced: 0
+[2025-11-10 14:44:55] Categories synced: 0
+[2025-11-10 14:44:55] Transactions synced: 0
+[2025-11-10 14:44:55] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-10 15:06:03] 
+────────────────────────────────────────────
+[2025-11-10 15:06:03] SyncManager constructed (local_user_id=2)
+[2025-11-10 15:06:03] Local user already linked to server_user_id=1
+[2025-11-10 15:06:03] Linked server_user_id=1
+[2025-11-10 15:06:03] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 15:06:03] Accounts synced: 0
+[2025-11-10 15:06:03] Categories synced: 0
+[2025-11-10 15:06:03] Transactions synced: 0
+[2025-11-10 15:06:03] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-10 15:06:03] Synced Accounts:0 Categories:0 Transactions:0
+[2025-11-10 15:06:27] 
+────────────────────────────────────────────
+[2025-11-10 15:06:27] SyncManager constructed (local_user_id=2)
+[2025-11-10 15:06:27] Local user already linked to server_user_id=1
+[2025-11-10 15:06:27] Linked server_user_id=1
+[2025-11-10 15:06:27] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 15:06:27] Accounts synced: 0
+[2025-11-10 15:06:27] Categories synced: 0
+[2025-11-10 15:06:27] Transactions synced: 0
+[2025-11-10 15:06:27] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-10 15:06:27] Synced Accounts:0 Categories:0 Transactions:0
+[2025-11-10 15:14:43] 
+────────────────────────────────────────────
+[2025-11-10 15:14:43] SyncManager constructed (local_user_id=2)
+[2025-11-10 15:14:43] Local user already linked to server_user_id=1
+[2025-11-10 15:14:43] Linked server_user_id=1
+[2025-11-10 15:14:43] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 15:14:43] Accounts synced: 0
+[2025-11-10 15:14:43] Categories synced: 0
+[2025-11-10 15:14:43] Transactions synced: 1
+[2025-11-10 15:14:43] === SYNC DONE: A=0 C=0 T=1 ===
+[2025-11-10 15:14:43] Synced Accounts:0 Categories:0 Transactions:1
+[2025-11-10 15:19:19] 
+────────────────────────────────────────────
+[2025-11-10 15:19:19] SyncManager constructed (local_user_id=2)
+[2025-11-10 15:19:19] Local user already linked to server_user_id=1
+[2025-11-10 15:19:19] Linked server_user_id=1
+[2025-11-10 15:19:19] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 15:19:19] FATAL: SQLSTATE[HY000]: General error: 1 no such column: sync_status
+[2025-11-10 15:19:19] Sync failed: SQLSTATE[HY000]: General error: 1 no such column: sync_status
+[2025-11-10 15:19:37] 
+────────────────────────────────────────────
+[2025-11-10 15:19:37] SyncManager constructed (local_user_id=2)
+[2025-11-10 15:19:37] Local user already linked to server_user_id=1
+[2025-11-10 15:19:37] Linked server_user_id=1
+[2025-11-10 15:19:37] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 15:19:37] FATAL: SQLSTATE[HY000]: General error: 1 no such column: sync_status
+[2025-11-10 15:19:37] Sync failed: SQLSTATE[HY000]: General error: 1 no such column: sync_status
+[2025-11-10 15:21:05] 
+────────────────────────────────────────────
+[2025-11-10 15:21:05] SyncManager constructed (local_user_id=2)
+[2025-11-10 15:21:05] Local user already linked to server_user_id=1
+[2025-11-10 15:21:05] Linked server_user_id=1
+[2025-11-10 15:21:05] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 15:21:05] Accounts synced: 0
+[2025-11-10 15:21:05] Categories synced: 0
+[2025-11-10 15:21:05] Transactions synced: 0
+[2025-11-10 15:21:05] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-10 15:21:05] Synced Accounts:0 Categories:0 Transactions:0
+[2025-11-10 15:37:20] 
+────────────────────────────────────────────
+[2025-11-10 15:37:20] SyncManager constructed (local_user_id=2)
+[2025-11-10 15:37:20] Local user already linked to server_user_id=1
+[2025-11-10 15:37:20] Linked server_user_id=1
+[2025-11-10 15:37:20] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 15:37:20] Accounts synced: 0
+[2025-11-10 15:37:20] Categories synced: 0
+[2025-11-10 15:37:20] FATAL: SQLSTATE[HY000]: General error: 1 no such column: t.deleted_at
+[2025-11-10 15:37:20] Sync failed: SQLSTATE[HY000]: General error: 1 no such column: t.deleted_at
+[2025-11-10 15:37:43] 
+────────────────────────────────────────────
+[2025-11-10 15:37:43] SyncManager constructed (local_user_id=2)
+[2025-11-10 15:37:43] Local user already linked to server_user_id=1
+[2025-11-10 15:37:43] Linked server_user_id=1
+[2025-11-10 15:37:43] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 15:37:43] Accounts synced: 0
+[2025-11-10 15:37:43] Categories synced: 0
+[2025-11-10 15:37:43] FATAL: SQLSTATE[HY000]: General error: 1 no such column: t.deleted_at
+[2025-11-10 15:37:43] Sync failed: SQLSTATE[HY000]: General error: 1 no such column: t.deleted_at
+[2025-11-10 15:42:57] 
+────────────────────────────────────────────
+[2025-11-10 15:42:57] SyncManager constructed (local_user_id=2)
+[2025-11-10 15:42:57] Local user already linked to server_user_id=1
+[2025-11-10 15:42:57] Linked server_user_id=1
+[2025-11-10 15:42:57] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 15:42:57] Accounts synced: 0
+[2025-11-10 15:42:57] Categories synced: 0
+[2025-11-10 15:42:57] Transactions synced: 0
+[2025-11-10 15:42:57] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-10 15:42:57] Synced Accounts:0 Categories:0 Transactions:0
+[2025-11-10 15:43:35] 
+────────────────────────────────────────────
+[2025-11-10 15:43:35] SyncManager constructed (local_user_id=2)
+[2025-11-10 15:43:35] Local user already linked to server_user_id=1
+[2025-11-10 15:43:35] Linked server_user_id=1
+[2025-11-10 15:43:35] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 15:43:35] Accounts synced: 0
+[2025-11-10 15:43:35] Categories synced: 0
+[2025-11-10 15:43:35] Transactions synced: 1
+[2025-11-10 15:43:35] === SYNC DONE: A=0 C=0 T=1 ===
+[2025-11-10 15:43:35] Synced Accounts:0 Categories:0 Transactions:1
+[2025-11-10 19:15:06] 
+────────────────────────────────────────────
+[2025-11-10 19:15:06] SyncManager constructed (local_user_id=2)
+[2025-11-10 19:15:06] Local user already linked to server_user_id=1
+[2025-11-10 19:15:06] Linked server_user_id=1
+[2025-11-10 19:15:06] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 19:15:06] Accounts synced: 1
+[2025-11-10 19:15:06] Repaired account map 'BOC Saving account' → 41
+[2025-11-10 19:15:06] Categories synced: 2
+[2025-11-10 19:15:06] Repaired category map 'bank interest' → 181
+[2025-11-10 19:15:06] Repaired category map 'Vehicle loan' → 182
+[2025-11-10 19:15:06] Transactions synced: 2
+[2025-11-10 19:15:06] === SYNC DONE: A=1 C=2 T=2 ===
+[2025-11-10 19:15:06] Synced Accounts:1 Categories:2 Transactions:2

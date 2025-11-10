@@ -1,33 +1,32 @@
 <?php
 // app/transactions/index.php
+declare(strict_types=1);
+
 require __DIR__ . '/../../config/env.php';
 require __DIR__ . '/../../db/sqlite.php';
 require __DIR__ . '/../../db/oracle.php';
 require __DIR__ . '/../auth/common/auth_guard.php';
 require __DIR__ . '/../auth/common/util.php';
 
-if (!function_exists('h')) {
-    function h($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
-}
+if (!function_exists('h')) { function h($v){ return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); } }
 function klower(array $r): array { $o=[]; foreach($r as $k=>$v){ $o[strtolower((string)$k)]=$v; } return $o; }
 
 $pdo = sqlite();
 $uid = (int)($_SESSION['uid'] ?? 0);
 
-// --- 1) Map local user -> server user (for Oracle) --------------------------
-$serverUid = 0;
+// --- Map local -> server user id (Oracle scope) -----------------------------
 $st = $pdo->prepare("SELECT server_user_id FROM USERS_LOCAL WHERE local_user_id = ?");
 $st->execute([$uid]);
 $serverUid = (int)($st->fetchColumn() ?: 0);
 
-// --- 2) Inputs (filters) ----------------------------------------------------
+// --- Inputs (filters) -------------------------------------------------------
 $from = trim($_GET['from'] ?? '');
 $to   = trim($_GET['to'] ?? '');
-$acc  = trim($_GET['account'] ?? '');   // will carry server/local id depending on source
+$acc  = trim($_GET['account'] ?? '');
 $cat  = trim($_GET['category'] ?? '');
-$typ  = trim($_GET['type'] ?? '');      // INCOME | EXPENSE | ''
+$typ  = trim($_GET['type'] ?? ''); // INCOME | EXPENSE | ''
 
-// --- 3) Pick DB: Oracle-first (only if serverUid is known) ------------------
+// --- Oracle first -----------------------------------------------------------
 $oconn = @oracle_conn();
 $use_oracle = false;
 if ($oconn && $serverUid > 0) {
@@ -35,12 +34,84 @@ if ($oconn && $serverUid > 0) {
     if ($probe && @oci_execute($probe)) $use_oracle = true;
 }
 
-// --- 4) Dropdowns (Accounts & Categories for this user) ---------------------
+// ---------- Helper: call Oracle totals via procedure/function ---------------
+function oracle_overall_summary($oconn, int $serverUid, string $from, string $to): ?array {
+    // Normalize dates (allow empty => open range)
+    $p_from = $from !== '' ? $from : '1900-01-01';
+    $p_to   = $to   !== '' ? $to   : date('Y-m-d');
+
+    // 1) Try packaged procedure: PKG_REPORTS.PR_OVERALL_SUMMARY
+    $sql = "BEGIN PKG_REPORTS.PR_OVERALL_SUMMARY(:p_uid, TO_DATE(:p_from,'YYYY-MM-DD'), TO_DATE(:p_to,'YYYY-MM-DD'), :o_income, :o_expense); END;";
+    $stid = @oci_parse($oconn, $sql);
+    if ($stid) {
+        @oci_bind_by_name($stid, ':p_uid', $serverUid, -1, SQLT_INT);
+        @oci_bind_by_name($stid, ':p_from', $p_from);
+        @oci_bind_by_name($stid, ':p_to',   $p_to);
+        $o_income = $o_expense = "0";
+        @oci_bind_by_name($stid, ':o_income',  $o_income,  40);
+        @oci_bind_by_name($stid, ':o_expense', $o_expense, 40);
+        if (@oci_execute($stid)) {
+            return ['income' => (float)$o_income, 'expense' => (float)$o_expense];
+        }
+    }
+
+    // 2) Try standalone procedure: PR_OVERALL_SUMMARY
+    $sql = "BEGIN PR_OVERALL_SUMMARY(:p_uid, TO_DATE(:p_from,'YYYY-MM-DD'), TO_DATE(:p_to,'YYYY-MM-DD'), :o_income, :o_expense); END;";
+    $stid = @oci_parse($oconn, $sql);
+    if ($stid) {
+        @oci_bind_by_name($stid, ':p_uid', $serverUid, -1, SQLT_INT);
+        @oci_bind_by_name($stid, ':p_from', $p_from);
+        @oci_bind_by_name($stid, ':p_to',   $p_to);
+        $o_income = $o_expense = "0";
+        @oci_bind_by_name($stid, ':o_income',  $o_income,  40);
+        @oci_bind_by_name($stid, ':o_expense', $o_expense, 40);
+        if (@oci_execute($stid)) {
+            return ['income' => (float)$o_income, 'expense' => (float)$o_expense];
+        }
+    }
+
+    // 3) Try functions on DUAL (packaged)
+    $sql = "
+      SELECT 
+        PKG_REPORTS.FN_TOTAL_INCOME(:p_uid, TO_DATE(:p_from,'YYYY-MM-DD'), TO_DATE(:p_to,'YYYY-MM-DD')) AS INCOME,
+        PKG_REPORTS.FN_TOTAL_EXPENSE(:p_uid, TO_DATE(:p_from,'YYYY-MM-DD'), TO_DATE(:p_to,'YYYY-MM-DD')) AS EXPENSE
+      FROM DUAL";
+    $stid = @oci_parse($oconn, $sql);
+    if ($stid) {
+        @oci_bind_by_name($stid, ':p_uid',  $serverUid, -1, SQLT_INT);
+        @oci_bind_by_name($stid, ':p_from', $p_from);
+        @oci_bind_by_name($stid, ':p_to',   $p_to);
+        if (@oci_execute($stid)) {
+            $r = @oci_fetch_assoc($stid);
+            if ($r) return ['income' => (float)$r['INCOME'], 'expense' => (float)$r['EXPENSE']];
+        }
+    }
+
+    // 4) Try functions without package (FN_TOTAL_INCOME / FN_TOTAL_EXPENSE)
+    $sql = "
+      SELECT 
+        FN_TOTAL_INCOME(:p_uid, TO_DATE(:p_from,'YYYY-MM-DD'), TO_DATE(:p_to,'YYYY-MM-DD')) AS INCOME,
+        FN_TOTAL_EXPENSE(:p_uid, TO_DATE(:p_from,'YYYY-MM-DD'), TO_DATE(:p_to,'YYYY-MM-DD')) AS EXPENSE
+      FROM DUAL";
+    $stid = @oci_parse($oconn, $sql);
+    if ($stid) {
+        @oci_bind_by_name($stid, ':p_uid',  $serverUid, -1, SQLT_INT);
+        @oci_bind_by_name($stid, ':p_from', $p_from);
+        @oci_bind_by_name($stid, ':p_to',   $p_to);
+        if (@oci_execute($stid)) {
+            $r = @oci_fetch_assoc($stid);
+            if ($r) return ['income' => (float)$r['INCOME'], 'expense' => (float)$r['EXPENSE']];
+        }
+    }
+
+    return null; // caller will fallback
+}
+
+// --- Dropdowns (same as before) --------------------------------------------
 $accounts = [];
 $categories = [];
 
 if ($use_oracle) {
-    // Values use *server* ids but are exposed under local_* keys to keep your UI working
     $SQL_A = "SELECT server_account_id AS local_account_id, account_name
               FROM ACCOUNTS_CLOUD
               WHERE user_server_id = :P_UID AND NVL(is_active,1)=1
@@ -59,31 +130,21 @@ if ($use_oracle) {
     oci_execute($sc);
     while ($r = oci_fetch_assoc($sc)) $categories[] = klower($r);
 } else {
-    $qa = $pdo->prepare("
-        SELECT local_account_id, account_name
-        FROM ACCOUNTS_LOCAL
-        WHERE user_local_id=? AND is_active=1
-        ORDER BY account_name
-    ");
+    $qa = $pdo->prepare("SELECT local_account_id, account_name FROM ACCOUNTS_LOCAL WHERE user_local_id=? AND is_active=1 ORDER BY account_name");
     $qa->execute([$uid]);
     $accounts = $qa->fetchAll(PDO::FETCH_ASSOC);
 
-    $qc = $pdo->prepare("
-        SELECT local_category_id, category_name
-        FROM CATEGORIES_LOCAL
-        WHERE user_local_id=?
-        ORDER BY category_type, category_name
-    ");
+    $qc = $pdo->prepare("SELECT local_category_id, category_name FROM CATEGORIES_LOCAL WHERE user_local_id=? ORDER BY category_type, category_name");
     $qc->execute([$uid]);
     $categories = $qc->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// --- 5) Fetch transactions + totals (normalize fields for UI) ---------------
+// --- Transactions + totals --------------------------------------------------
 $rows = [];
 $income = $expense = 0.0;
 
 if ($use_oracle) {
-    // WHERE builder
+    // Build WHERE
     $wh = ["t.user_server_id = :P_UID"];
     $binds = [':P_UID' => $serverUid];
 
@@ -95,7 +156,7 @@ if ($use_oracle) {
         $wh[] = "UPPER(t.txn_type) = :P_TYP"; $binds[':P_TYP']=strtoupper($typ);
     }
 
-    // Main query (limit 200)
+    // Transactions
     $SQL_TX = "
       SELECT
         t.server_txn_id                 AS local_txn_id,
@@ -113,47 +174,49 @@ if ($use_oracle) {
       ORDER BY t.txn_date DESC, t.server_txn_id DESC
       FETCH FIRST 200 ROWS ONLY
     ";
-    $st = oci_parse($oconn, $SQL_TX);
+    $stx = oci_parse($oconn, $SQL_TX);
     foreach ($binds as $k=>$v) {
-        if ($k === ':P_UID' || $k === ':P_ACC' || $k === ':P_CAT') {
-            oci_bind_by_name($st, $k, $binds[$k], -1, SQLT_INT);
+        if (in_array($k, [':P_UID',':P_ACC',':P_CAT'], true)) {
+            oci_bind_by_name($stx, $k, $binds[$k], -1, SQLT_INT);
         } else {
-            $s = (string)$v; oci_bind_by_name($st, $k, $s);
+            $s = (string)$v; oci_bind_by_name($stx, $k, $s);
         }
     }
-    oci_execute($st);
-    while ($r = oci_fetch_assoc($st)) {
+    oci_execute($stx);
+    while ($r = oci_fetch_assoc($stx)) {
         $r = klower($r);
-        // add sync_status to keep UI
         $r['sync_status'] = 'SYNCED';
-        // ensure date is Y-m-d H:i:s string
         $r['txn_date'] = date('Y-m-d H:i:s', is_numeric($r['txn_date']) ? (int)$r['txn_date'] : strtotime((string)$r['txn_date']));
         $rows[] = $r;
     }
 
-    // Totals
-    $SQL_SUM = "
-      SELECT
-        NVL(SUM(CASE WHEN UPPER(t.txn_type)='INCOME'  THEN t.amount ELSE 0 END),0) AS total_income,
-        NVL(SUM(CASE WHEN UPPER(t.txn_type)='EXPENSE' THEN t.amount ELSE 0 END),0) AS total_expense
-      FROM TRANSACTIONS_CLOUD t
-      WHERE " . implode(' AND ', $wh) . "
-    ";
-    $ss = oci_parse($oconn, $SQL_SUM);
-    foreach ($binds as $k=>$v) {
-        if ($k === ':P_UID' || $k === ':P_ACC' || $k === ':P_CAT') {
-            oci_bind_by_name($ss, $k, $binds[$k], -1, SQLT_INT);
-        } else {
-            $s = (string)$v; oci_bind_by_name($ss, $k, $s);
+    // --- Totals: use procedures/functions first ----------------------------
+    $tot = oracle_overall_summary($oconn, $serverUid, $from, $to);
+    if ($tot !== null) {
+        $income  = (float)$tot['income'];
+        $expense = (float)$tot['expense'];
+    } else {
+        // Final fallback: inline SUM
+        $SQL_SUM = "
+          SELECT
+            NVL(SUM(CASE WHEN UPPER(t.txn_type)='INCOME'  THEN t.amount ELSE 0 END),0) AS total_income,
+            NVL(SUM(CASE WHEN UPPER(t.txn_type)='EXPENSE' THEN t.amount ELSE 0 END),0) AS total_expense
+          FROM TRANSACTIONS_CLOUD t
+          WHERE " . implode(' AND ', $wh) . "
+        ";
+        $ss = oci_parse($oconn, $SQL_SUM);
+        foreach ($binds as $k=>$v) {
+            if (in_array($k, [':P_UID',':P_ACC',':P_CAT'], true)) oci_bind_by_name($ss, $k, $binds[$k], -1, SQLT_INT);
+            else { $s = (string)$v; oci_bind_by_name($ss, $k, $s); }
         }
+        oci_execute($ss);
+        $rr = oci_fetch_assoc($ss);
+        $income  = (float)($rr['TOTAL_INCOME'] ?? 0);
+        $expense = (float)($rr['TOTAL_EXPENSE'] ?? 0);
     }
-    oci_execute($ss);
-    $tot = oci_fetch_assoc($ss);
-    $income  = (float)($tot['TOTAL_INCOME'] ?? 0);
-    $expense = (float)($tot['TOTAL_EXPENSE'] ?? 0);
 
 } else {
-    // SQLite (your original logic)
+    // SQLite fallback (unchanged)
     $where = ["t.user_local_id = ?"];
     $args  = [$uid];
 
@@ -161,22 +224,18 @@ if ($use_oracle) {
     if ($to   !== '') { $where[] = "date(t.txn_date) <= date(?)"; $args[] = $to; }
     if ($acc  !== '') { $where[] = "t.account_local_id = ?";      $args[] = (int)$acc; }
     if ($cat  !== '') { $where[] = "t.category_local_id = ?";     $args[] = (int)$cat; }
-    if ($typ  !== '' && in_array($typ, ['INCOME','EXPENSE'], true)) {
-      $where[] = "t.txn_type = ?"; $args[] = $typ;
-    }
+    if ($typ  !== '' && in_array($typ, ['INCOME','EXPENSE'], true)) { $where[] = "t.txn_type = ?"; $args[] = $typ; }
 
     $sql = "
       SELECT
         t.local_txn_id, t.client_txn_uuid, t.txn_type, t.amount, t.txn_date, t.note, t.sync_status,
-        a.account_name,
-        c.category_name
+        a.account_name, c.category_name
       FROM TRANSACTIONS_LOCAL t
       JOIN ACCOUNTS_LOCAL a   ON a.local_account_id   = t.account_local_id
       JOIN CATEGORIES_LOCAL c ON c.local_category_id  = t.category_local_id
       WHERE " . implode(' AND ', $where) . "
       ORDER BY datetime(t.txn_date) DESC, t.local_txn_id DESC
-      LIMIT 200
-    ";
+      LIMIT 200";
     $stmt = $pdo->prepare($sql);
     $stmt->execute($args);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -186,8 +245,7 @@ if ($use_oracle) {
         SUM(CASE WHEN t.txn_type='INCOME'  THEN t.amount ELSE 0 END) AS total_income,
         SUM(CASE WHEN t.txn_type='EXPENSE' THEN t.amount ELSE 0 END) AS total_expense
       FROM TRANSACTIONS_LOCAL t
-      WHERE " . implode(' AND ', $where) . "
-    ";
+      WHERE " . implode(' AND ', $where);
     $sum = $pdo->prepare($totSql);
     $sum->execute($args);
     $tot = $sum->fetch(PDO::FETCH_ASSOC);
@@ -197,46 +255,42 @@ if ($use_oracle) {
 
 $net = $income - $expense;
 
-// --- 6) Stats & charts (works for both sources) -----------------------------
+// --- Stats & charts (same as before) ---------------------------------------
 $total_transactions = count($rows);
 $synced  = $use_oracle ? $total_transactions : count(array_filter($rows, fn($r) => ($r['sync_status'] ?? '') === 'SYNCED'));
 $pending = $total_transactions - $synced;
 
-// Monthly series (build from fetched rows)
+// Monthly series from fetched rows
 $monthly_data = [];
 foreach ($rows as $r) {
     $month = date('M Y', strtotime($r['txn_date']));
     if (!isset($monthly_data[$month])) $monthly_data[$month] = ['income'=>0,'expense'=>0];
-    if (strtoupper((string)$r['txn_type']) === 'INCOME') {
-        $monthly_data[$month]['income'] += (float)$r['amount'];
-    } else {
-        $monthly_data[$month]['expense'] += (float)$r['amount'];
-    }
+    if (strtoupper((string)$r['txn_type']) === 'INCOME') $monthly_data[$month]['income'] += (float)$r['amount'];
+    else $monthly_data[$month]['expense'] += (float)$r['amount'];
 }
-// keep last 6 months (sorted desc by key, then reverse for chart)
 $months = array_keys($monthly_data);
 usort($months, fn($a,$b)=>strtotime('01 '.$b) <=> strtotime('01 '.$a));
 $months = array_slice($months, 0, 6);
 $monthly_data_sorted = [];
 foreach (array_reverse($months) as $m) $monthly_data_sorted[$m] = $monthly_data[$m];
 
-// Recent (top 5 from rows already sorted)
+// Recent
 $recent = array_slice($rows, 0, 5);
+
+// -------------- render (UI unchanged; your pretty CSS applies) -------------
 ?>
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Transactions - PFMS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <link rel="stylesheet" href="index.css">
 </head>
 <body>
-
 <div class="app-container">
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="logo"><i class="fas fa-chart-line"></i><span>PFMS</span></div>
     <nav class="nav-menu">
@@ -252,14 +306,9 @@ $recent = array_slice($rows, 0, 5);
     </div>
   </aside>
 
-  <!-- Main -->
   <main class="main-content">
-    <!-- Top Bar -->
     <div class="top-bar">
-      <div class="page-title">
-        <h1>Transactions</h1>
-        <p>Track and manage your financial transactions</p>
-      </div>
+      <div class="page-title"><h1>Transactions</h1><p>Track and manage your financial transactions</p></div>
       <div class="top-actions">
         <button class="btn-icon" title="Refresh" onclick="location.reload()"><i class="fas fa-sync-alt"></i></button>
         <button class="btn-icon" title="Export"><i class="fas fa-download"></i></button>
@@ -267,13 +316,9 @@ $recent = array_slice($rows, 0, 5);
       </div>
     </div>
 
-    <?php
-      $incomeFmt  = number_format($income, 2);
-      $expenseFmt = number_format($expense, 2);
-      $netFmt     = number_format($net, 2);
-    ?>
+    <?php $incomeFmt = number_format($income,2); $expenseFmt = number_format($expense,2); $netFmt = number_format($net,2); ?>
 
-    <!-- Financial Overview -->
+    <!-- Overview (now powered by Oracle procs/functions when available) -->
     <div class="financial-overview">
       <div class="overview-card income-card">
         <div class="overview-icon"><i class="fas fa-arrow-down"></i></div>
@@ -302,6 +347,10 @@ $recent = array_slice($rows, 0, 5);
     </div>
 
     <!-- Quick Stats -->
+    <?php
+      $total_transactions = (int)$total_transactions;
+      $synced = (int)$synced; $pending = (int)$pending;
+    ?>
     <div class="stats-grid">
       <div class="stat-box stat-primary">
         <div class="stat-icon"><i class="fas fa-receipt"></i></div>
@@ -350,7 +399,7 @@ $recent = array_slice($rows, 0, 5);
       </div>
     </div>
 
-    <!-- Recent Transactions -->
+    <!-- Recent -->
     <div class="recent-section">
       <div class="section-header">
         <h3>Recent Transactions</h3>
@@ -402,7 +451,7 @@ $recent = array_slice($rows, 0, 5);
             <label><i class="fas fa-wallet"></i> Account</label>
             <select name="account">
               <option value="">All Accounts</option>
-              <?php foreach($accounts as $a): ?>
+              <?php foreach ($accounts as $a): ?>
                 <option value="<?= (int)$a['local_account_id'] ?>" <?= $acc==$a['local_account_id']?'selected':'' ?>>
                   <?= h($a['account_name']) ?>
                 </option>
@@ -413,7 +462,7 @@ $recent = array_slice($rows, 0, 5);
             <label><i class="fas fa-tags"></i> Category</label>
             <select name="category">
               <option value="">All Categories</option>
-              <?php foreach($categories as $c): ?>
+              <?php foreach ($categories as $c): ?>
                 <option value="<?= (int)$c['local_category_id'] ?>" <?= $cat==$c['local_category_id']?'selected':'' ?>>
                   <?= h($c['category_name']) ?>
                 </option>
@@ -427,7 +476,7 @@ $recent = array_slice($rows, 0, 5);
       </form>
     </div>
 
-    <!-- Transactions Table -->
+    <!-- Table -->
     <div class="table-section">
       <div class="section-header">
         <div>
@@ -480,7 +529,6 @@ $recent = array_slice($rows, 0, 5);
               <td>
                 <div class="action-buttons">
                   <?php if ($use_oracle): ?>
-                    <!-- Cloud view only; editing cloud rows not supported here -->
                     <span class="muted">Cloud</span>
                   <?php else: ?>
                     <a href="<?= APP_BASE ?>/app/transactions/edit.php?id=<?= (int)$r['local_txn_id'] ?>" class="btn-icon-small" title="Edit"><i class="fas fa-edit"></i></a>
@@ -495,14 +543,13 @@ $recent = array_slice($rows, 0, 5);
       </div>
       <?php endif; ?>
     </div>
-
   </main>
 </div>
 
 <script>
 // Search
 document.getElementById('searchInput')?.addEventListener('input', function(e) {
-  const search = e.target.value.toLowerCase();
+  const search = (e.target.value || '').toLowerCase();
   document.querySelectorAll('#transactionsBody tr').forEach(row => {
     const txt = row.dataset.search || '';
     row.style.display = txt.includes(search) ? '' : 'none';
@@ -511,47 +558,30 @@ document.getElementById('searchInput')?.addEventListener('input', function(e) {
 
 <?php if ($total_transactions > 0 && !empty($monthly_data_sorted)): ?>
 // Charts
-const chartConfig = {
-  responsive: true,
-  maintainAspectRatio: false,
+const chartCfg = {
+  responsive: true, maintainAspectRatio: false,
   plugins: {
-    legend: { display: true, position: 'bottom', labels: { padding: 15, font: { size: 12, weight: '600' } } },
-    tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.95)', padding: 12, borderRadius: 8, titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 13 } }
+    legend: { position: 'bottom', labels: { padding: 15, font: { size: 12, weight: '600' } } },
+    tooltip:{ backgroundColor:'rgba(15,23,42,.95)', padding:12, borderRadius:8 }
   }
 };
-
-const monthlyLabels = <?= json_encode(array_keys($monthly_data_sorted)) ?>;
-const incomeData   = <?= json_encode(array_column($monthly_data_sorted, 'income')) ?>;
-const expenseData  = <?= json_encode(array_column($monthly_data_sorted, 'expense')) ?>;
-
 new Chart(document.getElementById('trendChart'), {
   type: 'line',
   data: {
-    labels: monthlyLabels,
+    labels: <?= json_encode(array_keys($monthly_data_sorted)) ?>,
     datasets: [
-      { label: 'Income',  data: incomeData,  borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,.1)', tension: .4, fill: true, borderWidth: 3, pointRadius: 3 },
-      { label: 'Expense', data: expenseData, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,.1)', tension: .4, fill: true, borderWidth: 3, pointRadius: 3 }
+      { label:'Income',  data: <?= json_encode(array_column($monthly_data_sorted,'income')) ?>,  borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.1)', tension:.4, fill:true, borderWidth:3, pointRadius:3 },
+      { label:'Expense', data: <?= json_encode(array_column($monthly_data_sorted,'expense')) ?>, borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,.1)', tension:.4, fill:true, borderWidth:3, pointRadius:3 }
     ]
   },
-  options: {
-    ...chartConfig,
-    scales: {
-      y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 11 } } },
-      x: { grid: { display: false }, ticks: { font: { size: 11 } } }
-    }
-  }
+  options: { ...chartCfg, scales: { y:{beginAtZero:true, grid:{color:'rgba(0,0,0,.05)'}}, x:{grid:{display:false}} } }
 });
-
 new Chart(document.getElementById('typeChart'), {
-  type: 'doughnut',
-  data: {
-    labels: ['Income', 'Expense'],
-    datasets: [{ data: [<?= $income ?>, <?= $expense ?>], backgroundColor: ['#10b981','#ef4444'], borderWidth: 0, borderRadius: 8, spacing: 4 }]
-  },
-  options: { ...chartConfig, cutout: '65%' }
+  type:'doughnut',
+  data:{ labels:['Income','Expense'], datasets:[{ data:[<?= $income ?>, <?= $expense ?>], backgroundColor:['#10b981','#ef4444'], borderWidth:0, borderRadius:8, spacing:4 }]},
+  options:{ ...chartCfg, cutout:'65%' }
 });
 <?php endif; ?>
 </script>
-
 </body>
 </html>

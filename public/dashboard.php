@@ -63,9 +63,11 @@ try {
 // ─────────────────────────────────────────────────────────────
 
 // 1) resolve server_user_id from USERS_LOCAL
-$mapStmt = $pdo->prepare("SELECT server_user_id FROM USERS_LOCAL WHERE local_user_id = ?");
+$mapStmt = $pdo->prepare("SELECT server_user_id, full_name FROM USERS_LOCAL WHERE local_user_id = ?");
 $mapStmt->execute([$uid]);
-$serverUid = (int)($mapStmt->fetchColumn() ?: 0);
+$mapRow = $mapStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+$serverUid = (int)($mapRow['server_user_id'] ?? 0);
+$fullName  = (string)($mapRow['full_name'] ?? 'Me');
 
 // 2) try oracle
 $oconn = null;
@@ -92,7 +94,7 @@ $accounts = [];
 
 // -------------------- ORACLE path --------------------
 if ($use_oracle) {
-    // Summary (txn totals)
+    // Summary (txn totals across all time)
     $sql = "
       SELECT
         NVL(SUM(CASE WHEN UPPER(txn_type)='INCOME'  THEN amount ELSE 0 END),0) AS total_income,
@@ -110,7 +112,7 @@ if ($use_oracle) {
         $net_balance   = $total_income - $total_expense;
     }
 
-    // Recent transactions
+    // Recent transactions (last 5)
     $sql = "
       SELECT
         t.txn_type,
@@ -130,7 +132,7 @@ if ($use_oracle) {
     oci_execute($st);
     while ($r = oci_fetch_assoc($st)) { $recent_transactions[] = arr_keys_lower($r); }
 
-    // Monthly (last 6 months with data)
+    // Monthly (last 6 non-empty months)
     $sql = "
       SELECT
         TO_CHAR(t.txn_date,'YYYY-MM') AS month,
@@ -149,7 +151,7 @@ if ($use_oracle) {
     while ($r = oci_fetch_assoc($st)) { $tmp[] = arr_keys_lower($r); }
     $monthly_data = array_reverse($tmp);
 
-    // Category breakdown (top 5 by sum)
+    // Category breakdown (top 5 by amount)
     $sql = "
       SELECT
         NVL(c.category_name,'Uncategorized') AS category_name,
@@ -221,13 +223,13 @@ if ($use_oracle) {
     // Financial summary (txn totals)
     $summary = $pdo->prepare("
       SELECT 
-        SUM(CASE WHEN txn_type='INCOME' THEN amount ELSE 0 END) as total_income,
-        SUM(CASE WHEN txn_type='EXPENSE' THEN amount ELSE 0 END) as total_expense
+        SUM(CASE WHEN UPPER(txn_type)='INCOME' THEN amount ELSE 0 END) as total_income,
+        SUM(CASE WHEN UPPER(txn_type)='EXPENSE' THEN amount ELSE 0 END) as total_expense
       FROM TRANSACTIONS_LOCAL 
       WHERE user_local_id=?
     ");
     $summary->execute([$uid]);
-    $fin = $summary->fetch(PDO::FETCH_ASSOC);
+    $fin = $summary->fetch(PDO::FETCH_ASSOC) ?: [];
     $total_income  = (float)($fin['total_income'] ?? 0);
     $total_expense = (float)($fin['total_expense'] ?? 0);
     $net_balance   = $total_income - $total_expense;
@@ -245,12 +247,12 @@ if ($use_oracle) {
     $recent_txn->execute([$uid]);
     $recent_transactions = $recent_txn->fetchAll(PDO::FETCH_ASSOC);
 
-    // Monthly (last 6 months)
+    // Monthly (last 6)
     $monthly = $pdo->prepare("
       SELECT 
         strftime('%Y-%m', txn_date) as month,
-        SUM(CASE WHEN txn_type='INCOME' THEN amount ELSE 0 END) as income,
-        SUM(CASE WHEN txn_type='EXPENSE' THEN amount ELSE 0 END) as expense
+        SUM(CASE WHEN UPPER(txn_type)='INCOME' THEN amount ELSE 0 END) as income,
+        SUM(CASE WHEN UPPER(txn_type)='EXPENSE' THEN amount ELSE 0 END) as expense
       FROM TRANSACTIONS_LOCAL
       WHERE user_local_id = ?
       GROUP BY strftime('%Y-%m', txn_date)
@@ -273,11 +275,22 @@ if ($use_oracle) {
     $cat_breakdown->execute([$uid]);
     $top_categories = $cat_breakdown->fetchAll(PDO::FETCH_ASSOC);
 
-    // Account balances (top 5) via local view
+    // Account balances (top 5) — using local aggregate
     $acc_balances = $pdo->prepare("
-      SELECT account_name, current_balance, account_type
-      FROM V_ACCOUNT_BALANCES
-      WHERE user_local_id = ? AND is_active = 1
+      SELECT a.account_name, a.account_type,
+        IFNULL(a.opening_balance,0)
+        + IFNULL((
+            SELECT SUM(CASE WHEN UPPER(t2.txn_type)='INCOME' THEN t2.amount ELSE 0 END)
+            FROM TRANSACTIONS_LOCAL t2
+            WHERE t2.account_local_id = a.local_account_id AND t2.user_local_id = a.user_local_id
+          ),0)
+        - IFNULL((
+            SELECT SUM(CASE WHEN UPPER(t3.txn_type)='EXPENSE' THEN t3.amount ELSE 0 END)
+            FROM TRANSACTIONS_LOCAL t3
+            WHERE t3.account_local_id = a.local_account_id AND t3.user_local_id = a.user_local_id
+          ),0) AS current_balance
+      FROM ACCOUNTS_LOCAL a
+      WHERE a.user_local_id = ? AND a.is_active = 1
       ORDER BY current_balance DESC
       LIMIT 5
     ");
@@ -291,20 +304,24 @@ if ($use_oracle) {
         SELECT
           a.local_account_id,
           IFNULL(a.opening_balance,0) AS opening_balance,
-          SUM(CASE WHEN UPPER(t.txn_type)='INCOME'  THEN t.amount ELSE 0 END) AS inc,
-          SUM(CASE WHEN UPPER(t.txn_type)='EXPENSE' THEN t.amount ELSE 0 END) AS exp
+          (SELECT SUM(CASE WHEN UPPER(t.txn_type)='INCOME'  THEN t.amount ELSE 0 END)
+           FROM TRANSACTIONS_LOCAL t
+           WHERE t.account_local_id = a.local_account_id AND t.user_local_id = a.user_local_id) AS inc,
+          (SELECT SUM(CASE WHEN UPPER(t.txn_type)='EXPENSE' THEN t.amount ELSE 0 END)
+           FROM TRANSACTIONS_LOCAL t
+           WHERE t.account_local_id = a.local_account_id AND t.user_local_id = a.user_local_id) AS exp
         FROM ACCOUNTS_LOCAL a
-        LEFT JOIN TRANSACTIONS_LOCAL t
-          ON t.account_local_id = a.local_account_id
-         AND t.user_local_id    = a.user_local_id
-        WHERE a.user_local_id = ?
-          AND a.is_active = 1
-        GROUP BY a.local_account_id, a.opening_balance
+        WHERE a.user_local_id = ? AND a.is_active = 1
       )
     ");
     $tb->execute([$uid]);
     $total_balance = (float)($tb->fetchColumn() ?? 0);
 }
+
+// DB badge & name
+$db_badge_class = $use_oracle ? 'oracle' : 'sqlite';
+$db_badge_icon  = $use_oracle ? 'database' : 'laptop';
+$db_badge_text  = $use_oracle ? 'Oracle' : 'SQLite (Fallback)';
 ?>
 <!doctype html>
 <html lang="en">
@@ -312,10 +329,17 @@ if ($use_oracle) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PFMS Dashboard</title>
-  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="<?= APP_BASE ?>/public/dashboard.css">
+  <style>
+    .badge-db{display:inline-flex;gap:8px;padding:6px 12px;border-radius:999px;font-weight:700}
+    .oracle{background:rgba(16,185,129,.12);color:#065f46}
+    .sqlite{background:rgba(245,158,11,.12);color:#7c2d12}
+    .welcome-header{display:flex;justify-content:space-between;align-items:center;margin:0 0 16px 0}
+    .welcome-header .who{display:flex;gap:10px;align-items:center;color:#374151}
+    .btn-sync{display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:700}
+  </style>
 </head>
 <body>
 
@@ -349,7 +373,7 @@ if ($use_oracle) {
         <i class="fas fa-chart-bar"></i>
         <span>Reports</span>
       </a>
-      <a href="<?= APP_BASE ?>/public/sync.php" class="nav-item active">
+      <a href="<?= APP_BASE ?>/public/sync.php" class="nav-item">
         <i class="fas fa-sync-alt"></i>
         <span>Sync</span>
       </a>
@@ -368,23 +392,19 @@ if ($use_oracle) {
     
     <!-- Welcome Header -->
     <div class="welcome-header">
-      <div class="welcome-text">
-        <h1>Welcome Back!</h1>
-        <p>Here's your financial overview for today</p>
+      <div class="who">
+        <span class="badge-db <?= $db_badge_class ?>">
+          <i class="fas fa-<?= $db_badge_icon ?>"></i> <?= $db_badge_text ?>
+        </span>
+        <div>
+          <h1 style="margin:0;font-size:1.5rem;font-weight:800;color:#111827">Welcome back, <?= h($fullName) ?>!</h1>
+          <div style="color:#6b7280">Here’s your latest financial overview.</div>
+        </div>
       </div>
-      <div class="header-actions">
-        <button class="btn-icon" title="Notifications">
-          <i class="fas fa-bell"></i>
-          <span class="notification-badge">3</span>
-        </button>
-        <button class="btn-icon" title="Settings">
-          <i class="fas fa-cog"></i>
-        </button>
-        <a href="<?= APP_BASE ?>/public/sync.php" class="btn-sync">
-          <i class="fas fa-sync-alt"></i>
-          <span>Sync Now</span>
-        </a>
-      </div>
+      <a href="<?= APP_BASE ?>/public/sync.php" class="btn-sync">
+        <i class="fas fa-sync-alt"></i>
+        <span>Sync Now</span>
+      </a>
     </div>
 
     <!-- Financial Overview Cards -->
@@ -486,7 +506,7 @@ if ($use_oracle) {
           <span class="stat-value"><?= count($monthly_data) ?></span>
           <span class="stat-label">Active Months</span>
         </div>
-        <a href="<?= APP_BASE ?>/app/reports/index.php" class="stat-link">
+        <a href="<?= APP_BASE ?>/app/reports/index_oracle.php" class="stat-link">
           <i class="fas fa-arrow-right"></i>
         </a>
       </div>
@@ -543,9 +563,9 @@ if ($use_oracle) {
         <div class="card-body">
           <div class="transaction-list">
             <?php foreach($recent_transactions as $t): ?>
-            <div class="transaction-item <?= strtolower($t['txn_type']) ?>">
+            <div class="transaction-item <?= strtolower((string)$t['txn_type']) ?>">
               <div class="txn-icon">
-                <i class="fas fa-<?= strtoupper($t['txn_type']) === 'INCOME' ? 'arrow-down' : 'arrow-up' ?>"></i>
+                <i class="fas fa-<?= strtoupper((string)$t['txn_type']) === 'INCOME' ? 'arrow-down' : 'arrow-up' ?>"></i>
               </div>
               <div class="txn-details">
                 <span class="txn-category"><?= h($t['category_name'] ?? 'Uncategorized') ?></span>
@@ -620,7 +640,7 @@ if ($use_oracle) {
               <i class="fas fa-tag"></i>
               <span>New Category</span>
             </a>
-            <a href="<?= APP_BASE ?>/app/reports/index.php" class="action-btn action-orange">
+            <a href="<?= APP_BASE ?>/app/reports/index_oracle.php" class="action-btn action-orange">
               <i class="fas fa-chart-bar"></i>
               <span>View Reports</span>
             </a>
@@ -641,8 +661,13 @@ if ($use_oracle) {
             <div class="score-circle">
               <svg width="120" height="120">
                 <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+                <?php
+                  $ratio = $total_income > 0 ? max(0, min(1, $net_balance / $total_income)) : 0;
+                  $circ = 2 * M_PI * 54; // ~339.292
+                  $offset = $circ * (1 - $ratio);
+                ?>
                 <circle cx="60" cy="60" r="54" fill="none" stroke="url(#gradient)" stroke-width="8" 
-                        stroke-dasharray="339.292" stroke-dashoffset="<?= 339.292 * (1 - min(1, max(0, $total_income > 0 ? ($net_balance / $total_income) : 0))) ?>" 
+                        stroke-dasharray="<?= $circ ?>" stroke-dashoffset="<?= $offset ?>" 
                         stroke-linecap="round" transform="rotate(-90 60 60)"/>
                 <defs>
                   <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -652,14 +677,14 @@ if ($use_oracle) {
                 </defs>
               </svg>
               <div class="score-text">
-                <span class="score-value"><?= $total_income > 0 ? round(($net_balance / $total_income) * 100) : 0 ?>%</span>
+                <span class="score-value"><?= $total_income > 0 ? round($ratio * 100) : 0 ?>%</span>
                 <span class="score-label">Savings Rate</span>
               </div>
             </div>
             <div class="health-tips">
               <div class="tip-item">
                 <i class="fas fa-check-circle"></i>
-                <span><?= $net_balance >= 0 ? 'Great job!' : 'Need improvement' ?></span>
+                <span><?= $net_balance >= 0 ? 'Great job!' : 'Needs improvement' ?></span>
               </div>
               <div class="tip-item">
                 <i class="fas fa-lightbulb"></i>
