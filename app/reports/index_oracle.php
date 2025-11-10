@@ -9,9 +9,7 @@ require __DIR__ . '/../auth/common/auth_guard.php';
 
 function h($x){ return htmlspecialchars((string)$x, ENT_QUOTES, 'UTF-8'); }
 
-/* ────────────────────────────────────────────────────────────────────────────
-   DATE HELPERS  (Oracle expects DD-MM-YYYY; <input type="date"> is YYYY-MM-DD)
-   ──────────────────────────────────────────────────────────────────────────── */
+
 function norm_date(string $s, string $fallback): string {
     $s = trim($s);
     if ($s === '') return $fallback;
