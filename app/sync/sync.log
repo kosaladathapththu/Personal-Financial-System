@@ -1368,3 +1368,81 @@
 [2025-11-10 19:15:06] Transactions synced: 2
 [2025-11-10 19:15:06] === SYNC DONE: A=1 C=2 T=2 ===
 [2025-11-10 19:15:06] Synced Accounts:1 Categories:2 Transactions:2
+[2025-11-10 21:29:40] 
+────────────────────────────────────────────
+[2025-11-10 21:29:40] SyncManager constructed (local_user_id=2)
+[2025-11-10 21:29:40] Local user already linked to server_user_id=1
+[2025-11-10 21:29:40] Linked server_user_id=1
+[2025-11-10 21:29:40] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 21:29:40] Accounts synced: 0
+[2025-11-10 21:29:40] Categories synced: 0
+[2025-11-10 21:29:40] Transactions synced: 1
+[2025-11-10 21:29:40] === SYNC DONE: A=0 C=0 T=1 ===
+[2025-11-10 21:29:40] Synced Accounts:0 Categories:0 Transactions:1
+[2025-11-10 21:47:26] 
+────────────────────────────────────────────
+[2025-11-10 21:47:26] SyncManager constructed (local_user_id=2)
+[2025-11-10 21:47:26] Local user already linked to server_user_id=1
+[2025-11-10 21:47:26] Linked server_user_id=1
+[2025-11-10 21:47:26] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 21:47:26] Accounts synced: 0
+[2025-11-10 21:47:26] Categories synced: 0
+[2025-11-10 21:47:26] Transactions synced: 1
+[2025-11-10 21:47:26] === SYNC DONE: A=0 C=0 T=1 ===
+[2025-11-10 21:47:26] Synced Accounts:0 Categories:0 Transactions:1
+[2025-11-10 21:58:39] 
+────────────────────────────────────────────
+[2025-11-10 21:58:39] SyncManager constructed (local_user_id=2)
+[2025-11-10 21:58:39] Local user already linked to server_user_id=1
+[2025-11-10 21:58:39] Linked server_user_id=1
+[2025-11-10 21:58:39] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 21:58:39] Accounts synced: 0
+[2025-11-10 21:58:39] Categories synced: 0
+[2025-11-10 21:58:39] Transactions synced: 0
+[2025-11-10 21:58:39] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-10 21:58:39] Synced Accounts:0 Categories:0 Transactions:0
+[2025-11-10 22:22:06] 
+────────────────────────────────────────────
+[2025-11-10 22:22:06] SyncManager constructed (local_user_id=2)
+[2025-11-10 22:22:06] Local user already linked to server_user_id=1
+[2025-11-10 22:22:06] Linked server_user_id=1
+[2025-11-10 22:22:06] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 22:22:06] Accounts synced: 0
+[2025-11-10 22:22:06] Categories synced: 0
+[2025-11-10 22:22:06] Transactions synced: 0
+[2025-11-10 22:22:06] === SYNC DONE: A=0 C=0 T=0 ===
+[2025-11-10 22:22:06] Synced Accounts:0 Categories:0 Transactions:0
+[2025-11-10 22:32:57] 
+────────────────────────────────────────────
+[2025-11-10 22:32:57] SyncManager constructed (local_user_id=2)
+[2025-11-10 22:32:57] Local user already linked to server_user_id=1
+[2025-11-10 22:32:57] Linked server_user_id=1
+[2025-11-10 22:32:57] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 22:32:57] Accounts synced: 0
+[2025-11-10 22:32:57] Categories synced: 0
+[2025-11-10 22:32:57] Transactions synced: 1
+[2025-11-10 22:32:57] === SYNC DONE: A=0 C=0 T=1 ===
+[2025-11-10 22:32:57] Synced Accounts:0 Categories:0 Transactions:1
+[2025-11-10 23:54:39] 
+────────────────────────────────────────────
+[2025-11-10 23:54:39] SyncManager constructed (local_user_id=2)
+[2025-11-10 23:54:39] Local user already linked to server_user_id=1
+[2025-11-10 23:54:39] Linked server_user_id=1
+[2025-11-10 23:54:39] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-10 23:54:39] Accounts synced: 0
+[2025-11-10 23:54:39] Categories synced: 0
+[2025-11-10 23:54:39] Transactions synced: 1
+[2025-11-10 23:54:39] === SYNC DONE: A=0 C=0 T=1 ===
+[2025-11-10 23:54:39] Synced Accounts:0 Categories:0 Transactions:1
+[2025-11-11 00:05:21] 
+────────────────────────────────────────────
+[2025-11-11 00:05:21] SyncManager constructed (local_user_id=2)
+[2025-11-11 00:05:21] Local user already linked to server_user_id=1
+[2025-11-11 00:05:21] Linked server_user_id=1
+[2025-11-11 00:05:21] === SYNC START (local_user_id=2, server_user_id=1) ===
+[2025-11-11 00:05:22] Accounts synced: 1
+[2025-11-11 00:05:22] Repaired account map 'HNB BANK' → 42
+[2025-11-11 00:05:22] Categories synced: 0
+[2025-11-11 00:05:22] Transactions synced: 0
+[2025-11-11 00:05:22] === SYNC DONE: A=1 C=0 T=0 ===
+[2025-11-11 00:05:22] Synced Accounts:1 Categories:0 Transactions:0

@@ -9,7 +9,9 @@ require __DIR__ . '/../auth/common/auth_guard.php';
 
 function h($x){ return htmlspecialchars((string)$x, ENT_QUOTES, 'UTF-8'); }
 
-
+/* ────────────────────────────────────────────────────────────────────────────
+   DATE HELPERS  (Oracle expects DD-MM-YYYY; <input type="date"> is YYYY-MM-DD)
+   ──────────────────────────────────────────────────────────────────────────── */
 function norm_date(string $s, string $fallback): string {
     $s = trim($s);
     if ($s === '') return $fallback;
@@ -259,7 +261,7 @@ if ($db['type'] === 'oracle' && $serverUid > 0) {
           category_name,
           note,
           running_balance
-        FROM MV_TXN_MINIMAL
+        FROM VW_TXN_MINIMAL
         WHERE user_server_id = :P_UID
           AND txn_date >= TO_DATE(:P_FROM,'DD-MM-YYYY')
           AND txn_date <  TO_DATE(:P_TO,'DD-MM-YYYY') + 1

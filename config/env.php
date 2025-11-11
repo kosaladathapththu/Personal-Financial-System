@@ -20,7 +20,7 @@ define('ORACLE_USER',     'KOSALA');
 define('ORACLE_PASS',     'Plapytome');
 
 /* ====== Sync settings ====== */
-define('AUTO_SYNC_ENABLED', false);
+define('AUTO_SYNC_ENABLED', true);
 define('SYNC_INTERVAL_MINUTES', 15);
 define('MAX_SYNC_RETRIES', 3);
 define('SYNC_TIMEOUT_SECONDS', 30);

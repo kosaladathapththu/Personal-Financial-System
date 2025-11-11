@@ -201,3 +201,185 @@ GRANT QUERY REWRITE TO KOSALA;        -- optional
 -- give space in USERS tablespace so the MV can be stored
 ALTER USER KOSALA QUOTA UNLIMITED ON USERS;
 -- (or a cap) ALTER USER KOSALA QUOTA 500M ON USERS;
+----------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------
+-- Ensure this audit table matches these columns (adjust types/lengths if needed):
+-- CREATE TABLE TRANSACTIONS_CLOUD_AUD (
+--   aud_id               NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+--   action               VARCHAR2(10)     NOT NULL,         -- 'INSERT'
+--   changed_by           VARCHAR2(128)    NOT NULL,
+--   changed_at           TIMESTAMP        NOT NULL,
+--   server_txn_id        NUMBER           NOT NULL,
+--   user_server_id       NUMBER           NOT NULL,
+--   account_server_id    NUMBER           NOT NULL,
+--   category_server_id   NUMBER,                           -- nullable
+--   txn_date             DATE             NOT NULL,         -- or TIMESTAMP if your base uses it
+--   txn_type             VARCHAR2(20)     NOT NULL,         -- 'INCOME' / 'EXPENSE'
+--   amount               NUMBER(15,2)     NOT NULL,
+--   note                 VARCHAR2(1000),                    -- adjust length to match source
+--   created_at           TIMESTAMP,
+--   updated_at           TIMESTAMP,
+--   client_txn_uuid      VARCHAR2(64)                      -- optional; include if you have it
+-- );
+
+CREATE OR REPLACE TRIGGER trg_transactions_cloud_aud_ins
+AFTER INSERT ON transactions_cloud
+FOR EACH ROW
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+  v_changed_by VARCHAR2(128);
+BEGIN
+  -- Who did this? Prefer CLIENT_IDENTIFIER; then SESSION_USER; finally DB USER.
+  v_changed_by := SYS_CONTEXT('USERENV','CLIENT_IDENTIFIER');
+  IF v_changed_by IS NULL OR v_changed_by = '' THEN
+    v_changed_by := SYS_CONTEXT('USERENV','SESSION_USER');
+    IF v_changed_by IS NULL OR v_changed_by = '' THEN
+      v_changed_by := USER;
+    END IF;
+  END IF;
+
+  INSERT INTO transactions_cloud_aud (
+    action, changed_by, changed_at,
+    server_txn_id, user_server_id, account_server_id, category_server_id,
+    txn_date, txn_type, amount, note,
+    created_at, updated_at,
+    client_txn_uuid
+  )
+  VALUES (
+    'INSERT', v_changed_by, SYSTIMESTAMP,
+    :NEW.server_txn_id, :NEW.user_server_id, :NEW.account_server_id, :NEW.category_server_id,
+    :NEW.txn_date, :NEW.txn_type, :NEW.amount, :NEW.note,
+    :NEW.created_at, :NEW.updated_at,
+    :NEW.client_txn_uuid  -- remove if you don't have this column
+  );
+
+  COMMIT; -- commit audit row independently
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Never block the INSERT; try to log a minimal row, then give up silently.
+    BEGIN
+      INSERT INTO transactions_cloud_aud (
+        action, changed_by, changed_at,
+        server_txn_id, user_server_id, account_server_id, category_server_id,
+        txn_date, txn_type, amount, note,
+        created_at, updated_at,
+        client_txn_uuid
+      )
+      VALUES (
+        'AUDIT_ERR', NVL(v_changed_by, USER), SYSTIMESTAMP,
+        :NEW.server_txn_id, :NEW.user_server_id, :NEW.account_server_id, :NEW.category_server_id,
+        :NEW.txn_date, :NEW.txn_type, :NEW.amount, :NEW.note,
+        :NEW.created_at, :NEW.updated_at,
+        :NEW.client_txn_uuid
+      );
+      COMMIT;
+    EXCEPTION WHEN OTHERS THEN
+      NULL; -- last resort
+    END;
+END;
+/
+----------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------
+-- 2) INSERT trigger (logs new accounts)
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER trg_accounts_cloud_aud_ins
+AFTER INSERT ON accounts_cloud
+FOR EACH ROW
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+  v_changed_by VARCHAR2(128);
+BEGIN
+  -- Who did this?
+  v_changed_by := SYS_CONTEXT('USERENV','CLIENT_IDENTIFIER');
+  IF v_changed_by IS NULL OR v_changed_by = '' THEN
+    v_changed_by := SYS_CONTEXT('USERENV','SESSION_USER');
+    IF v_changed_by IS NULL OR v_changed_by = '' THEN
+      v_changed_by := USER;
+    END IF;
+  END IF;
+
+  INSERT INTO accounts_cloud_aud (
+    action, changed_by, changed_at,
+    server_account_id, user_server_id, account_name, account_type,
+    currency_code, opening_balance, is_active, created_at, updated_at
+  ) VALUES (
+    'INSERT', v_changed_by, SYSTIMESTAMP,
+    :NEW.server_account_id, :NEW.user_server_id, :NEW.account_name, :NEW.account_type,
+    :NEW.currency_code, :NEW.opening_balance, :NEW.is_active, :NEW.created_at, :NEW.updated_at
+  );
+
+  COMMIT; -- independent commit for audit row
+EXCEPTION
+  WHEN OTHERS THEN
+    -- don't block the DML; best-effort minimal audit
+    BEGIN
+      INSERT INTO accounts_cloud_aud (
+        action, changed_by, changed_at,
+        server_account_id, user_server_id, account_name, account_type,
+        currency_code, opening_balance, is_active, created_at, updated_at
+      ) VALUES (
+        'AUDIT_ERR', NVL(v_changed_by, USER), SYSTIMESTAMP,
+        :NEW.server_account_id, :NEW.user_server_id, :NEW.account_name, :NEW.account_type,
+        :NEW.currency_code, :NEW.opening_balance, :NEW.is_active, :NEW.created_at, :NEW.updated_at
+      );
+      COMMIT;
+    EXCEPTION WHEN OTHERS THEN NULL; -- last resort
+    END;
+END;
+/
+SHOW ERRORS
+/
+
+---------------------------------------------------------------
+-- 3) UPDATE trigger (logs after updates)
+---------------------------------------------------------------
+CREATE OR REPLACE TRIGGER trg_accounts_cloud_aud_upd
+AFTER UPDATE ON accounts_cloud
+FOR EACH ROW
+DECLARE
+  PRAGMA AUTONOMOUS_TRANSACTION;
+  v_changed_by VARCHAR2(128);
+BEGIN
+  -- Who did this?
+  v_changed_by := SYS_CONTEXT('USERENV','CLIENT_IDENTIFIER');
+  IF v_changed_by IS NULL OR v_changed_by = '' THEN
+    v_changed_by := SYS_CONTEXT('USERENV','SESSION_USER');
+    IF v_changed_by IS NULL OR v_changed_by = '' THEN
+      v_changed_by := USER;
+    END IF;
+  END IF;
+
+  INSERT INTO accounts_cloud_aud (
+    action, changed_by, changed_at,
+    server_account_id, user_server_id, account_name, account_type,
+    currency_code, opening_balance, is_active, created_at, updated_at
+  ) VALUES (
+    'UPDATE', v_changed_by, SYSTIMESTAMP,
+    :NEW.server_account_id, :NEW.user_server_id, :NEW.account_name, :NEW.account_type,
+    :NEW.currency_code, :NEW.opening_balance, :NEW.is_active, :NEW.created_at, :NEW.updated_at
+  );
+
+  COMMIT; -- independent commit for audit row
+EXCEPTION
+  WHEN OTHERS THEN
+    -- don't block the DML; best-effort minimal audit
+    BEGIN
+      INSERT INTO accounts_cloud_aud (
+        action, changed_by, changed_at,
+        server_account_id, user_server_id, account_name, account_type,
+        currency_code, opening_balance, is_active, created_at, updated_at
+      ) VALUES (
+        'AUDIT_ERR', NVL(v_changed_by, USER), SYSTIMESTAMP,
+        :NEW.server_account_id, :NEW.user_server_id, :NEW.account_name, :NEW.account_type,
+        :NEW.currency_code, :NEW.opening_balance, :NEW.is_active, :NEW.created_at, :NEW.updated_at
+      );
+      COMMIT;
+    EXCEPTION WHEN OTHERS THEN NULL; -- last resort
+    END;
+END;
+/
+SHOW ERRORS
+/

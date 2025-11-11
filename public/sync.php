@@ -2,7 +2,7 @@
 // pfms/public/sync.php
 
 require __DIR__ . '/../config/env.php';
-require __DIR__ . '/../db/sqlite.php';
+require __DIR__  . '/../db/sqlite.php';
 require __DIR__ . '/../db/oracle.php';
 
 // ---- Helpers ----
@@ -20,8 +20,8 @@ function app_public(string $path): string {
 
 // ---- Auth guard (starts session if needed) ----
 $guardFiles = [
-    __DIR__ . '/../app/auth/common/auth_guard.php',
-    __DIR__ . '/../app/common/auth_guard.php',
+    __DIR__  . '/../app/auth/common/auth_guard.php',
+    __DIR__  . '/../app/common/auth_guard.php',
 ];
 foreach ($guardFiles as $g) { if (file_exists($g)) { require $g; break; } }
 if (session_status() === PHP_SESSION_NONE) { session_start(); }

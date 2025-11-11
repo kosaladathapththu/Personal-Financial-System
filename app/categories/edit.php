@@ -4,12 +4,146 @@ declare(strict_types=1);
 
 require __DIR__ . '/../../config/env.php';
 require __DIR__ . '/../../db/sqlite.php';
+require __DIR__ . '/../../db/oracle.php';        // Oracle push
 require __DIR__ . '/../auth/common/auth_guard.php';
 
 if (!function_exists('h')) {
     function h($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 }
 function now_iso(): string { return date('Y-m-d H:i:s'); }
+
+/**
+ * Push a local category to Oracle (upsert).
+ * Returns array [ok(bool), server_id(int|null), message(string)]
+ */
+function push_category_to_oracle(PDO $pdo, int $uid, int $localCategoryId): array {
+    $conn = oracle_conn();
+    if (!$conn) {
+        return [false, null, 'Oracle not connected'];
+    }
+
+    // Set client identifier for audit trigger (changed_by)
+    $clientId = (string)($_SESSION['email'] ?? $_SESSION['uid'] ?? 'PFMS');
+    @oci_set_client_identifier($conn, $clientId);
+
+    // 1) Load local category + user mapping
+    $st = $pdo->prepare("
+        SELECT c.local_category_id, c.server_category_id, c.category_name, c.category_type,
+               c.parent_local_id, c.created_at, c.updated_at,
+               u.server_user_id
+        FROM CATEGORIES_LOCAL c
+        JOIN USERS_LOCAL u ON u.local_user_id = c.user_local_id
+        WHERE c.local_category_id = ? AND c.user_local_id = ?
+    ");
+    $st->execute([$localCategoryId, $uid]);
+    $row = $st->fetch(PDO::FETCH_ASSOC);
+    if (!$row) return [false, null, 'Local category not found'];
+
+    $serverUserId = (int)($row['server_user_id'] ?? 0);
+    if ($serverUserId <= 0) {
+        return [false, null, 'No server_user_id mapping; run full sync first'];
+    }
+
+    $serverCategoryId = $row['server_category_id'] ? (int)$row['server_category_id'] : null;
+    $name            = (string)$row['category_name'];
+    $type            = (string)$row['category_type']; // 'INCOME' | 'EXPENSE'
+    $parentLocalId   = $row['parent_local_id'] !== null ? (int)$row['parent_local_id'] : null;
+
+    // 2) Resolve parent_server_id if any
+    $parentServerId = null;
+    if ($parentLocalId !== null) {
+        $ps = $pdo->prepare("
+            SELECT server_category_id
+            FROM CATEGORIES_LOCAL
+            WHERE local_category_id = ? AND user_local_id = ?
+        ");
+        $ps->execute([$parentLocalId, $uid]);
+        $parentServerId = $ps->fetchColumn();
+        $parentServerId = $parentServerId !== false ? (int)$parentServerId : null;
+    }
+
+    // 3) UPDATE if we already have server_category_id
+    if ($serverCategoryId) {
+        $sql = "
+            UPDATE CATEGORIES_CLOUD
+               SET category_name    = :name,
+                   category_type    = :type,
+                   parent_server_id = :parent_id,
+                   updated_at       = SYSTIMESTAMP
+             WHERE server_category_id = :sid
+               AND user_server_id     = :uid
+        ";
+        $stmt = oci_parse($conn, $sql);
+        oci_bind_by_name($stmt, ':name', $name);
+        oci_bind_by_name($stmt, ':type', $type);
+
+        if ($parentServerId === null) {
+            $tmp = null;
+            oci_bind_by_name($stmt, ':parent_id', $tmp, -1, SQLT_INT);
+        } else {
+            oci_bind_by_name($stmt, ':parent_id', $parentServerId);
+        }
+
+        oci_bind_by_name($stmt, ':sid', $serverCategoryId);
+        oci_bind_by_name($stmt, ':uid', $serverUserId);
+
+        $ok = @oci_execute($stmt, OCI_NO_AUTO_COMMIT);
+        if (!$ok) {
+            $e = oci_error($stmt);
+            oci_rollback($conn);
+            return [false, $serverCategoryId, 'Oracle UPDATE failed: ' . ($e['message'] ?? 'unknown')];
+        }
+        oci_commit($conn);
+        return [true, $serverCategoryId, 'Updated'];
+    }
+
+    // 4) INSERT if no server_category_id yet
+    $sql = "
+        INSERT INTO CATEGORIES_CLOUD (
+            user_server_id, parent_server_id, category_name, category_type, created_at, updated_at
+        ) VALUES (
+            :uid, :parent_id, :name, :type, SYSTIMESTAMP, SYSTIMESTAMP
+        )
+        RETURNING server_category_id INTO :out_id
+    ";
+    $stmt = oci_parse($conn, $sql);
+    oci_bind_by_name($stmt, ':uid', $serverUserId);
+
+    if ($parentServerId === null) {
+        $tmp = null;
+        oci_bind_by_name($stmt, ':parent_id', $tmp, -1, SQLT_INT);
+    } else {
+        oci_bind_by_name($stmt, ':parent_id', $parentServerId);
+    }
+
+    oci_bind_by_name($stmt, ':name', $name);
+    oci_bind_by_name($stmt, ':type', $type);
+
+    $outId = null; // NUMBER -> bind as string buffer OK
+    oci_bind_by_name($stmt, ':out_id', $outId, 40);
+
+    $ok = @oci_execute($stmt, OCI_NO_AUTO_COMMIT);
+    if (!$ok) {
+        $e = oci_error($stmt);
+        oci_rollback($conn);
+        return [false, null, 'Oracle INSERT failed: ' . ($e['message'] ?? 'unknown')];
+    }
+
+    oci_commit($conn);
+
+    // Save mapping back to SQLite
+    if ($outId !== null) {
+        $mx = $pdo->prepare("
+            UPDATE CATEGORIES_LOCAL
+               SET server_category_id = ?
+             WHERE local_category_id = ? AND user_local_id = ?
+        ");
+        $mx->execute([(int)$outId, $localCategoryId, $uid]);
+        return [true, (int)$outId, 'Inserted'];
+    }
+
+    return [false, null, 'Oracle insert returned no id'];
+}
 
 $pdo = sqlite();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -182,14 +316,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         $now = now_iso();
+
+        // Update SQLite first
         $upd = $pdo->prepare("
             UPDATE CATEGORIES_LOCAL
-            SET category_name = ?, category_type = ?, parent_local_id = ?, updated_at = ?
-            WHERE local_category_id = ? AND user_local_id = ?
+               SET category_name   = ?,
+                   category_type   = ?,
+                   parent_local_id = ?,
+                   updated_at      = ?
+             WHERE local_category_id = ? AND user_local_id = ?
         ");
         $upd->execute([$name, $type, $parentId, $now, $id, $uid]);
 
-        // Refresh $cat for sidebar view without hard redirect
+        // Push to Oracle immediately (upsert)
+        list($okPush, $srvId, $pushMsg) = push_category_to_oracle($pdo, $uid, $id);
+
+        // Refresh $cat for sidebar
         $st = $pdo->prepare("
             SELECT local_category_id, user_local_id, parent_local_id, category_name, category_type,
                    created_at, updated_at, server_category_id
@@ -200,7 +342,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cat = $st->fetch(PDO::FETCH_ASSOC);
 
         $success = true;
-        header('Refresh: 2; url=' . APP_BASE . '/app/categories/index.php');
+
+        // Redirect with a friendly message
+        $note = $okPush ? 'oracle_sync_ok' : ('oracle_sync_failed: '.urlencode($pushMsg));
+        header('Location: ' . APP_BASE . '/app/categories/index.php?msg=' . $note);
+        exit;
     }
 }
 
